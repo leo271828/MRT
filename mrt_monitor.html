@@ -95,23 +95,23 @@ select{font-family:var(--font-sans);outline:none;}
 }
 .topbar__brand{display:flex;flex-direction:column;gap:1px;}
 .topbar__title{
-  font-size:16px;font-weight:700;letter-spacing:-.03em;
+  font-size:18px;font-weight:700;letter-spacing:-.03em;
   color:var(--fg-1);display:flex;align-items:center;gap:8px;
 }
 .topbar__badge{
   display:inline-flex;align-items:center;justify-content:center;
-  width:22px;height:22px;background:var(--line-r);
+  width:26px;height:26px;background:var(--line-r);
   border-radius:var(--radius-2);font-family:var(--font-mono);
-  font-size:11px;font-weight:700;color:#fff;flex-shrink:0;
+  font-size:13px;font-weight:700;color:#fff;flex-shrink:0;
 }
-.topbar__sub{font-family:var(--font-mono);font-size:11px;color:var(--fg-3);letter-spacing:.02em;}
+.topbar__sub{font-family:var(--font-mono);font-size:12px;color:var(--fg-3);letter-spacing:.02em;}
 .topbar__filters{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
 .topbar__legend{display:flex;align-items:center;gap:5px;}
 
 /* Filter atoms */
 .filter-group{display:flex;align-items:center;gap:6px;}
 .filter-label{
-  font-size:10px;font-weight:600;color:var(--fg-3);
+  font-size:12px;font-weight:600;color:var(--fg-3);
   letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;
 }
 .seg-ctrl{
@@ -120,27 +120,27 @@ select{font-family:var(--font-sans);outline:none;}
   border:1px solid var(--border-1);
 }
 .seg-btn{
-  background:transparent;border:none;padding:4px 9px;
-  font:500 11px var(--font-tc);color:var(--fg-2);
+  background:transparent;border:none;padding:5px 12px;
+  font:500 13px var(--font-tc);color:var(--fg-2);
   border-radius:calc(var(--radius-2) - 1px);
   cursor:pointer;transition:background 140ms,color 140ms;white-space:nowrap;
 }
 .seg-btn--on{background:var(--bg-surface);color:var(--fg-1);box-shadow:var(--shadow-1);}
 .filter-select{
   background:var(--bg-surface);border:1px solid var(--border-1);
-  border-radius:var(--radius-2);padding:4px 8px;
-  font:500 12px var(--font-mono);color:var(--fg-1);cursor:pointer;
+  border-radius:var(--radius-2);padding:5px 10px;
+  font:500 13px var(--font-mono);color:var(--fg-1);cursor:pointer;
   transition:border-color 140ms;
 }
 .filter-select:focus{border-color:var(--line-r);}
-.filter-divider{width:1px;height:20px;background:var(--border-1);flex-shrink:0;}
+.filter-divider{width:1px;height:22px;background:var(--border-1);flex-shrink:0;}
 
 /* Line chips */
 .line-chip{
-  display:flex;align-items:center;gap:4px;
-  padding:3px 7px;background:var(--bg-surface);
+  display:flex;align-items:center;gap:5px;
+  padding:4px 9px;background:var(--bg-surface);
   border:1.5px solid var(--border-1);border-radius:var(--radius-2);
-  font:600 10px var(--font-mono);color:var(--fg-3);
+  font:600 12px var(--font-mono);color:var(--fg-3);
   transition:all 140ms;opacity:.35;
   cursor:default;user-select:none;
 }
@@ -189,62 +189,80 @@ select{font-family:var(--font-sans);outline:none;}
 
 /* Station detail card */
 .station-card{
-  position:absolute;bottom:16px;left:50%;
+  position:absolute;bottom:20px;left:50%;
   transform:translateX(-50%);
-  width:500px;max-width:calc(100% - 32px);
+  width:540px;max-width:calc(100% - 32px);
   background:var(--bg-surface);
   border:1px solid var(--border-1);
+  border-left:4px solid var(--line-r);
   border-radius:var(--radius-4);
   box-shadow:var(--shadow-3);
-  padding:16px;z-index:50;
+  padding:20px 24px;z-index:50;
   animation:card-rise 200ms cubic-bezier(.2,0,0,1) both;
 }
 @keyframes card-rise{
   from{opacity:0;transform:translateX(-50%) translateY(14px);}
   to  {opacity:1;transform:translateX(-50%) translateY(0);}
 }
-.card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
-.card-code{
-  font-family:var(--font-mono);font-weight:700;font-size:11px;
-  padding:3px 7px;border-radius:var(--radius-1);
-  background:var(--line-r);color:#fff;letter-spacing:.04em;
+.card-head{
+  display:flex;align-items:flex-start;
+  justify-content:space-between;gap:12px;margin-bottom:14px;
 }
-.card-name-tc{font-family:var(--font-tc);font-weight:700;font-size:20px;letter-spacing:-.02em;margin-top:3px;}
-.card-name-en{font-size:12px;color:var(--fg-3);margin-top:1px;}
+.card-identity{display:flex;align-items:flex-start;gap:10px;}
+.card-code{
+  font-family:var(--font-mono);font-weight:700;font-size:12px;
+  padding:4px 8px;border-radius:var(--radius-1);
+  background:var(--line-r);color:#fff;letter-spacing:.04em;
+  flex-shrink:0;margin-top:3px;
+}
+.card-name-tc{font-family:var(--font-tc);font-weight:700;font-size:22px;letter-spacing:-.02em;line-height:1.1;}
+.card-name-en{font-size:12px;color:var(--fg-3);margin-top:4px;}
 .card-close{
   background:var(--bg-sunken);border:1px solid var(--border-1);
-  border-radius:var(--radius-2);padding:4px 9px;
-  font:500 12px var(--font-sans);color:var(--fg-3);cursor:pointer;
-  transition:background 120ms;
+  border-radius:var(--radius-2);width:30px;height:30px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;color:var(--fg-3);cursor:pointer;flex-shrink:0;
+  transition:background 120ms,color 120ms;
 }
-.card-close:hover{background:var(--bg-hover);}
-.card-transfers{display:flex;gap:4px;margin-bottom:10px;}
+.card-close:hover{background:var(--bg-hover);color:var(--fg-1);}
+.card-transfers{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
 .transfer-chip{
-  font-family:var(--font-mono);font-size:10px;font-weight:600;
-  padding:2px 7px;border-radius:var(--radius-1);color:#fff;letter-spacing:.04em;
+  font-family:var(--font-mono);font-size:11px;font-weight:600;
+  padding:3px 10px;border-radius:var(--radius-pill);color:#fff;letter-spacing:.04em;
 }
-.card-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.card-divider{height:1px;background:var(--border-1);margin-bottom:16px;}
+.card-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
 .kpi-mini{
   background:var(--bg-sunken);border-radius:var(--radius-3);
-  padding:10px 12px;text-align:center;
+  padding:12px 14px;
+}
+.kpi-mini__lbl{
+  font-size:10px;color:var(--fg-3);
+  text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;
 }
 .kpi-mini__val{
-  font-family:var(--font-mono);font-size:20px;font-weight:600;
-  font-variant-numeric:tabular-nums;line-height:1;margin-bottom:4px;
+  font-family:var(--font-mono);font-size:22px;font-weight:600;
+  font-variant-numeric:tabular-nums;line-height:1;
 }
-.kpi-mini__lbl{font-size:10px;color:var(--fg-3);}
-.kpi-mini--in .kpi-mini__val{color:#0A6B3A;}
-.kpi-mini--out .kpi-mini__val{color:var(--line-r);}
-.card-ratio{display:flex;align-items:center;gap:8px;}
-.card-ratio-label{font-family:var(--font-mono);font-size:10px;color:var(--fg-3);width:36px;}
-.card-ratio-track{
-  flex:1;height:6px;background:var(--border-1);
-  border-radius:3px;overflow:hidden;position:relative;
+/* Both in & out use line colour — unified with red line theme */
+.kpi-mini--in  .kpi-mini__val{color:var(--line-r);}
+.kpi-mini--out .kpi-mini__val{color:var(--line-r);opacity:.6;}
+.card-ratio-bar{
+  height:8px;display:flex;border-radius:4px;overflow:hidden;
+  background:var(--border-1);margin-bottom:8px;
 }
-.card-ratio-fill{
-  position:absolute;inset:0 auto 0 0;
-  background:#0A6B3A;border-radius:3px;
+.card-ratio-in{
+  background:var(--line-r);height:100%;
+  border-radius:4px 0 0 4px;
   transition:width .4s cubic-bezier(.4,0,.2,1);
+}
+.card-ratio-out{
+  background:var(--line-r);opacity:.25;height:100%;
+  flex:1;border-radius:0 4px 4px 0;
+}
+.card-ratio-labels{
+  display:flex;justify-content:space-between;
+  font-family:var(--font-mono);font-size:11px;color:var(--fg-3);
 }
 
 /* Network map */
@@ -299,7 +317,7 @@ select{font-family:var(--font-sans);outline:none;}
   font-family:var(--font-mono);font-size:21px;font-weight:600;
   font-variant-numeric:tabular-nums;line-height:1.1;
 }
-.kpi-val--in{color:#0A6B3A;}
+.kpi-val--in{color:var(--line-r);}
 .kpi-val--out{color:var(--line-r);}
 .kpi-lbl{font-size:12px;color:var(--fg-3);margin-top:4px;font-family:var(--font-tc);}
 
@@ -501,11 +519,11 @@ function aggregate(data, dateMode, selectedDate, selectedWeekday, timeMode, sele
 /* ═══════════════════════════════════════════
    LINEAR MAP
 ═══════════════════════════════════════════ */
-const GAP    = 140;  // px between station centers (wider for 2× elements)
+const GAP    = 160;  // px between station centers
 const PAD_X  = 220;  // horizontal padding
-const SVG_H  = 620;  // total svg height
-const MAIN_Y = 340;  // y of the main track
-const BR_LEN = 160;  // branch stub length (upward)
+const SVG_H  = 520;  // total svg height
+const MAIN_Y = 250;  // y of the main track
+const BR_LEN = 150;  // branch stub length (upward)
 
 function LinearMap({ selected, onSelect, agg }) {
   const wrapRef = useRef();
@@ -584,13 +602,12 @@ function LinearMap({ selected, onSelect, agg }) {
         {BRANCH_ST && beitouI >= 0 && (() => {
           const flow  = agg?.byStation[BRANCH_ST.tc];
           const total = (flow?.in||0)+(flow?.out||0);
-          const r     = 13 + Math.min(7, Math.log10(1+total/300));
+          const r     = 16;
           const isSel = selected === BRANCH_ST.tc;
           const bx    = beitouX, by = MAIN_Y - BR_LEN;
           return (
             <g key="R22A" onClick={() => guardedSelect(BRANCH_ST.tc, isSel)} style={{cursor:'pointer'}}>
               {isSel && <circle cx={bx} cy={by} r={r+18} fill="var(--line-r)" opacity={.12}/>}
-              {total > 0 && <circle cx={bx} cy={by} r={r+10} fill="var(--line-r)" opacity={Math.min(.2,total/maxFlow*.3)}/>}
               <circle cx={bx} cy={by} r={r}
                 fill={isSel?"var(--line-r)":"var(--bg-surface)"}
                 stroke="var(--line-r)" strokeWidth={isSel?0:4}/>
@@ -608,53 +625,50 @@ function LinearMap({ selected, onSelect, agg }) {
         {/* ── Main line stations ── */}
         {mainSts.map((s, i) => {
           const x = PAD_X + i * GAP;
-          // Force 北投 labels BELOW so the upward branch stub doesn't cover them
-          const above  = s.hasBranch ? false : (i % 2 === 0);
+          // All labels below the track
+          const above  = false;
           const isSel  = selected === s.tc;
           const isXfer = (s.transfers?.length || 0) > 0;
           const flow   = agg?.byStation[s.tc];
           const total  = (flow?.in||0)+(flow?.out||0);
-          // 2× base radii; flow bonus also 2×
-          const r      = (isXfer ? 18 : 14) + Math.min(7, Math.log10(1+total/300));
+          // Uniform dot radius for all stations
+          const r      = 16;
 
-          // Fixed tick endpoint — 2× longer than before
           const TICK_END = 76;
-          const tk1 = above ? MAIN_Y - r        : MAIN_Y + r;
-          const tk2 = above ? MAIN_Y - TICK_END : MAIN_Y + TICK_END;
-          // Labels: TC closest to tick, then EN, then code — all gaps 2×
-          const lbY   = above ? MAIN_Y - TICK_END - 28 : MAIN_Y + TICK_END + 32; // TC
-          const enY   = above ? MAIN_Y - TICK_END - 64 : MAIN_Y + TICK_END + 68; // EN
-          const codeY = above ? MAIN_Y - TICK_END - 96 : MAIN_Y + TICK_END + 100; // code
-
-          // Satellite y: opposite side from labels so they never touch text
-          const satCY = above ? MAIN_Y + r + 20 : MAIN_Y - r - 20;
+          const tk1 = MAIN_Y + r;
+          const tk2 = MAIN_Y + TICK_END;
+          // Labels below track: TC → [transfer rects] → EN → code
+          const lbY   = MAIN_Y + TICK_END + 32;  // TC name
+          const enY   = MAIN_Y + TICK_END + 68;  // EN name
+          const codeY = MAIN_Y + TICK_END + 90;  // station code
+          const rectCY = codeY + 20;              // transfer rect centre, below station code
 
           return (
             <g key={s.code} onClick={() => guardedSelect(s.tc, isSel)} style={{cursor:'pointer'}}>
               {/* Selected halo */}
-              {isSel && <circle cx={x} cy={MAIN_Y} r={r+20} fill="var(--line-r)" opacity={.10}/>}
-              {/* Flow glow */}
-              {total>0 && <circle cx={x} cy={MAIN_Y} r={r+10} fill="var(--line-r)" opacity={Math.min(.20,total/maxFlow*.28)}/>}
-              {/* Transfer satellite circles — one per transfer line, spread horizontally */}
-              {isXfer && s.transfers.map((t, ti) => {
-                const n  = s.transfers.length;
-                const ox = (ti - (n-1)/2) * 22; // horizontal spread for multiple transfers
-                return (
-                  <circle key={t} cx={x+ox} cy={satCY} r={9}
-                    fill={LINE_COLORS[t]||'#888'}
-                    stroke="var(--bg-surface)" strokeWidth={3}
-                  />
-                );
-              })}
-              {/* Tick — 2× thicker */}
+              {isSel && <circle cx={x} cy={MAIN_Y} r={r+16} fill="var(--line-r)" opacity={.10}/>}
+              {/* Tick */}
               <line x1={x} y1={tk1} x2={x} y2={tk2} stroke="var(--border-2)" strokeWidth={2.5}/>
-              {/* Station dot */}
+              {/* Station dot — uniform size */}
               <circle
                 cx={x} cy={MAIN_Y} r={r}
                 fill={isSel?"var(--line-r)":"var(--bg-surface)"}
                 stroke="var(--line-r)"
-                strokeWidth={isSel?0:(isXfer?5:4)}
+                strokeWidth={isSel?0:4}
               />
+              {/* Transfer rectangles — below TC name */}
+              {isXfer && s.transfers.map((t, ti) => {
+                const n  = s.transfers.length;
+                const rw = 24, rh = 12;
+                const ox = (ti - (n-1)/2) * 28;
+                return (
+                  <rect key={t}
+                    x={x+ox-rw/2} y={rectCY-rh/2}
+                    width={rw} height={rh} rx={3}
+                    fill={LINE_COLORS[t]||'#888'}
+                  />
+                );
+              })}
               {/* TC name (closest to tick) — 2× font */}
               <text x={x} y={lbY} textAnchor="middle"
                 fontSize={24} fontFamily="Noto Sans TC" fontWeight={isSel?700:500}
@@ -693,12 +707,16 @@ function StationCard({ stationName, agg, onClose }) {
   return (
     <div className="station-card">
       <div className="card-head">
-        <div>
+        <div className="card-identity">
           <span className="card-code">{s?.code}</span>
-          <div className="card-name-tc">{stationName}</div>
-          <div className="card-name-en">{s?.en}</div>
+          <div>
+            <div className="card-name-tc">{stationName}</div>
+            <div className="card-name-en">{s?.en}</div>
+          </div>
         </div>
-        <button className="card-close" onClick={onClose}>✕ 關閉</button>
+        <button className="card-close" onClick={onClose}>
+          <i className="ph ph-x"/>
+        </button>
       </div>
       {s?.transfers?.length > 0 && (
         <div className="card-transfers">
@@ -707,26 +725,28 @@ function StationCard({ stationName, agg, onClose }) {
           ))}
         </div>
       )}
+      <div className="card-divider"/>
       <div className="card-kpis">
         <div className="kpi-mini kpi-mini--in">
-          <div className="kpi-mini__val">{formatBig(flow.in)}</div>
           <div className="kpi-mini__lbl">進站 Entries</div>
+          <div className="kpi-mini__val">{formatBig(flow.in)}</div>
         </div>
         <div className="kpi-mini kpi-mini--out">
-          <div className="kpi-mini__val">{formatBig(flow.out)}</div>
           <div className="kpi-mini__lbl">出站 Exits</div>
+          <div className="kpi-mini__val">{formatBig(flow.out)}</div>
         </div>
         <div className="kpi-mini">
-          <div className="kpi-mini__val">{formatBig(tot)}</div>
           <div className="kpi-mini__lbl">合計 Total</div>
+          <div className="kpi-mini__val">{formatBig(tot)}</div>
         </div>
       </div>
-      <div className="card-ratio">
-        <span className="card-ratio-label" style={{textAlign:'right'}}>進 {inPct}%</span>
-        <div className="card-ratio-track">
-          <div className="card-ratio-fill" style={{width:`${inPct}%`}}/>
-        </div>
-        <span className="card-ratio-label" style={{color:'var(--line-r)'}}>出 {100-inPct}%</span>
+      <div className="card-ratio-bar">
+        <div className="card-ratio-in" style={{width:`${inPct}%`}}/>
+        <div className="card-ratio-out"/>
+      </div>
+      <div className="card-ratio-labels">
+        <span>進站 {inPct}%</span>
+        <span>出站 {100-inPct}%</span>
       </div>
     </div>
   );
@@ -993,7 +1013,8 @@ function TopBar({ data, dateMode, setDateMode, selDate, setSelDate, selWd, setSe
           <span className="topbar__badge">R</span>
           台北捷運 · 淡水信義線
         </div>
-        <div className="topbar__sub">人流監測 · Passenger Monitor · {rangeLabel}</div>
+        <div className="topbar__sub">人流監測 · Passenger Monitor</div>
+        <div className="topbar__sub">{rangeLabel}</div>
       </div>
 
       {/* Filters */}
