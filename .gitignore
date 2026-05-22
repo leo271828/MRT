@@ -1,0 +1,7 @@
+data/raw/
+data/*.csv
+data/json/
+__pycache__/
+*.py
+.DS_Store
+temporary screenshots/

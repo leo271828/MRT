@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>台北捷運人流監測 · MRT Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css"/>
+<style>
+/* ════════════════════════════════════════════
+   DESIGN TOKENS
+════════════════════════════════════════════ */
+:root {
+  --line-br:#B57A24; --line-r:#E3002C; --line-g:#008659;
+  --line-o:#F8B61C;  --line-bl:#0070BD; --line-y:#E5C100;
+  --line-r-tint:#FBD9DF;
+
+  --ink-0:#FFFFFF;  --ink-50:#F6F7F9;  --ink-100:#ECEEF2;
+  --ink-200:#DDE1E8;--ink-300:#C2C8D2; --ink-400:#9098A6;
+  --ink-500:#6B7280;--ink-600:#4B5260; --ink-700:#2F3540;
+  --ink-800:#1B1F27;--ink-900:#0E1117;
+
+  --brand-50:#EEF1FA;  --brand-100:#D7DEF1; --brand-200:#AFBCE3;
+  --brand-300:#7E91CF; --brand-400:#4E66B7; --brand-500:#2A4395;
+  --brand-600:#1F3477; --brand-700:#17285C; --brand-800:#11254A;
+  --brand-900:#0A1733;
+
+  --heat-0:#EAF2FB; --heat-1:#BFD8EE; --heat-2:#88BCDC;
+  --heat-3:#6BAACE; --heat-4:#F1C45B; --heat-5:#ED8B3A;
+  --heat-6:#D9482A; --heat-7:#8E1D17;
+
+  /* semantic light */
+  --fg-1:var(--ink-900); --fg-2:var(--ink-700); --fg-3:var(--ink-500);
+  --bg-app:var(--ink-50);  --bg-surface:var(--ink-0);
+  --bg-sunken:var(--ink-100); --bg-hover:var(--ink-100);
+  --border-1:var(--ink-200); --border-2:var(--ink-300);
+  --shadow-1:0 1px 0 rgba(14,17,23,.04),0 1px 2px rgba(14,17,23,.06);
+  --shadow-2:0 2px 4px rgba(14,17,23,.06),0 4px 12px rgba(14,17,23,.08);
+  --shadow-3:0 8px 24px rgba(14,17,23,.12);
+
+  --font-sans:"IBM Plex Sans","Noto Sans TC",-apple-system,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --font-tc:"Noto Sans TC","IBM Plex Sans",-apple-system,sans-serif;
+  --radius-1:2px; --radius-2:4px; --radius-3:8px;
+  --radius-4:12px; --radius-pill:999px;
+}
+/* dark mode via data-theme="dark" on <html> (set by JS on load + toggle) */
+[data-theme="dark"] {
+  --fg-1:var(--ink-100); --fg-2:var(--ink-300); --fg-3:var(--ink-400);
+  --bg-app:#0B0E14; --bg-surface:#151923;
+  --bg-sunken:#1B2030; --bg-hover:#222838;
+  --border-1:#262C3A; --border-2:#343B4D;
+  --shadow-1:0 1px 0 rgba(0,0,0,.2),0 1px 2px rgba(0,0,0,.3);
+  --shadow-2:0 2px 4px rgba(0,0,0,.3),0 4px 12px rgba(0,0,0,.4);
+  --shadow-3:0 8px 24px rgba(0,0,0,.55);
+}
+
+/* ════════════════════════════════════════════
+   RESET
+════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;}
+html,body,#root{height:100%;margin:0;padding:0;}
+body{
+  font-family:var(--font-sans);font-size:14px;line-height:22px;
+  color:var(--fg-1);background:var(--bg-app);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  overflow:hidden;
+}
+h1,h2,h3,h4,p{margin:0;}
+button{font-family:var(--font-sans);cursor:pointer;border:none;outline:none;background:none;}
+select{font-family:var(--font-sans);outline:none;}
+
+/* ════════════════════════════════════════════
+   LAYOUT
+════════════════════════════════════════════ */
+.app{display:grid;grid-template-rows:auto 1fr;height:100vh;overflow:hidden;}
+.body{display:grid;grid-template-columns:1fr 380px;overflow:hidden;min-height:0;}
+
+/* ════════════════════════════════════════════
+   TOP BAR
+════════════════════════════════════════════ */
+.topbar{
+  background:var(--bg-surface);
+  border-bottom:1px solid var(--border-1);
+  box-shadow:var(--shadow-1);
+  display:grid;
+  grid-template-columns:minmax(240px,auto) 1fr auto;
+  align-items:center;
+  gap:20px;
+  padding:10px 20px;
+  z-index:100;
+  flex-shrink:0;
+}
+.topbar__brand{display:flex;flex-direction:column;gap:1px;}
+.topbar__title{
+  font-size:16px;font-weight:700;letter-spacing:-.03em;
+  color:var(--fg-1);display:flex;align-items:center;gap:8px;
+}
+.topbar__badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;background:var(--line-r);
+  border-radius:var(--radius-2);font-family:var(--font-mono);
+  font-size:11px;font-weight:700;color:#fff;flex-shrink:0;
+}
+.topbar__sub{font-family:var(--font-mono);font-size:11px;color:var(--fg-3);letter-spacing:.02em;}
+.topbar__filters{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.topbar__legend{display:flex;align-items:center;gap:5px;}
+
+/* Filter atoms */
+.filter-group{display:flex;align-items:center;gap:6px;}
+.filter-label{
+  font-size:10px;font-weight:600;color:var(--fg-3);
+  letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;
+}
+.seg-ctrl{
+  display:flex;background:var(--bg-sunken);
+  border-radius:var(--radius-2);padding:2px;gap:1px;
+  border:1px solid var(--border-1);
+}
+.seg-btn{
+  background:transparent;border:none;padding:4px 9px;
+  font:500 11px var(--font-tc);color:var(--fg-2);
+  border-radius:calc(var(--radius-2) - 1px);
+  cursor:pointer;transition:background 140ms,color 140ms;white-space:nowrap;
+}
+.seg-btn--on{background:var(--bg-surface);color:var(--fg-1);box-shadow:var(--shadow-1);}
+.filter-select{
+  background:var(--bg-surface);border:1px solid var(--border-1);
+  border-radius:var(--radius-2);padding:4px 8px;
+  font:500 12px var(--font-mono);color:var(--fg-1);cursor:pointer;
+  transition:border-color 140ms;
+}
+.filter-select:focus{border-color:var(--line-r);}
+.filter-divider{width:1px;height:20px;background:var(--border-1);flex-shrink:0;}
+
+/* Line chips */
+.line-chip{
+  display:flex;align-items:center;gap:4px;
+  padding:3px 7px;background:var(--bg-surface);
+  border:1.5px solid var(--border-1);border-radius:var(--radius-2);
+  font:600 10px var(--font-mono);color:var(--fg-3);
+  transition:all 140ms;opacity:.35;
+  cursor:default;user-select:none;
+}
+.line-chip--on{opacity:1;}
+.line-chip__dot{width:7px;height:7px;border-radius:50%;}
+.line-chip--BR .line-chip__dot{background:var(--line-br);}
+.line-chip--R  .line-chip__dot{background:var(--line-r);}
+.line-chip--G  .line-chip__dot{background:var(--line-g);}
+.line-chip--O  .line-chip__dot{background:var(--line-o);}
+.line-chip--BL .line-chip__dot{background:var(--line-bl);}
+.line-chip--R.line-chip--on{color:var(--line-r);border-color:var(--line-r);background:color-mix(in oklab,var(--line-r) 8%,transparent);}
+
+/* ════════════════════════════════════════════
+   MAP PANEL
+════════════════════════════════════════════ */
+.map-panel{
+  display:flex;flex-direction:column;
+  border-right:1px solid var(--border-1);
+  overflow:hidden;background:var(--bg-app);
+}
+.map-tabs{
+  display:flex;gap:0;padding:12px 18px 0;
+  border-bottom:1px solid var(--border-1);
+  background:var(--bg-surface);flex-shrink:0;
+}
+.map-tab{
+  background:transparent;border:none;padding:8px 16px;
+  font:500 13px var(--font-tc);color:var(--fg-3);cursor:pointer;
+  border-bottom:2px solid transparent;margin-bottom:-1px;
+  transition:color 140ms,border-color 140ms;
+}
+.map-tab--on{color:var(--line-r);border-bottom-color:var(--line-r);font-weight:600;}
+.map-content{flex:1;overflow:hidden;position:relative;min-height:0;}
+
+/* Linear map */
+.linear-wrap{
+  position:absolute;inset:0;
+  overflow-x:auto;overflow-y:hidden;
+  cursor:grab;
+  user-select:none;
+}
+.linear-wrap.dragging{cursor:grabbing;}
+.linear-wrap::-webkit-scrollbar{height:4px;}
+.linear-wrap::-webkit-scrollbar-track{background:transparent;}
+.linear-wrap::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:2px;}
+
+/* Station detail card */
+.station-card{
+  position:absolute;bottom:16px;left:50%;
+  transform:translateX(-50%);
+  width:500px;max-width:calc(100% - 32px);
+  background:var(--bg-surface);
+  border:1px solid var(--border-1);
+  border-radius:var(--radius-4);
+  box-shadow:var(--shadow-3);
+  padding:16px;z-index:50;
+  animation:card-rise 200ms cubic-bezier(.2,0,0,1) both;
+}
+@keyframes card-rise{
+  from{opacity:0;transform:translateX(-50%) translateY(14px);}
+  to  {opacity:1;transform:translateX(-50%) translateY(0);}
+}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.card-code{
+  font-family:var(--font-mono);font-weight:700;font-size:11px;
+  padding:3px 7px;border-radius:var(--radius-1);
+  background:var(--line-r);color:#fff;letter-spacing:.04em;
+}
+.card-name-tc{font-family:var(--font-tc);font-weight:700;font-size:20px;letter-spacing:-.02em;margin-top:3px;}
+.card-name-en{font-size:12px;color:var(--fg-3);margin-top:1px;}
+.card-close{
+  background:var(--bg-sunken);border:1px solid var(--border-1);
+  border-radius:var(--radius-2);padding:4px 9px;
+  font:500 12px var(--font-sans);color:var(--fg-3);cursor:pointer;
+  transition:background 120ms;
+}
+.card-close:hover{background:var(--bg-hover);}
+.card-transfers{display:flex;gap:4px;margin-bottom:10px;}
+.transfer-chip{
+  font-family:var(--font-mono);font-size:10px;font-weight:600;
+  padding:2px 7px;border-radius:var(--radius-1);color:#fff;letter-spacing:.04em;
+}
+.card-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.kpi-mini{
+  background:var(--bg-sunken);border-radius:var(--radius-3);
+  padding:10px 12px;text-align:center;
+}
+.kpi-mini__val{
+  font-family:var(--font-mono);font-size:20px;font-weight:600;
+  font-variant-numeric:tabular-nums;line-height:1;margin-bottom:4px;
+}
+.kpi-mini__lbl{font-size:10px;color:var(--fg-3);}
+.kpi-mini--in .kpi-mini__val{color:#0A6B3A;}
+.kpi-mini--out .kpi-mini__val{color:var(--line-r);}
+.card-ratio{display:flex;align-items:center;gap:8px;}
+.card-ratio-label{font-family:var(--font-mono);font-size:10px;color:var(--fg-3);width:36px;}
+.card-ratio-track{
+  flex:1;height:6px;background:var(--border-1);
+  border-radius:3px;overflow:hidden;position:relative;
+}
+.card-ratio-fill{
+  position:absolute;inset:0 auto 0 0;
+  background:#0A6B3A;border-radius:3px;
+  transition:width .4s cubic-bezier(.4,0,.2,1);
+}
+
+/* Network map */
+.network-wrap{position:absolute;inset:0;overflow:hidden;cursor:grab;}
+.network-wrap:active{cursor:grabbing;}
+.zoom-ctrls{
+  position:absolute;top:12px;right:12px;
+  display:flex;flex-direction:column;gap:4px;z-index:10;
+}
+.zoom-btn{
+  width:30px;height:30px;
+  background:var(--bg-surface);
+  border:1px solid var(--border-1);
+  border-radius:var(--radius-2);
+  font:600 16px var(--font-sans);
+  color:var(--fg-2);display:flex;
+  align-items:center;justify-content:center;
+  cursor:pointer;box-shadow:var(--shadow-1);
+  transition:background 120ms;
+}
+.zoom-btn:hover{background:var(--bg-hover);}
+
+/* ════════════════════════════════════════════
+   SIDE PANEL
+════════════════════════════════════════════ */
+.side-panel{
+  background:var(--bg-surface);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.side-sec{
+  padding:14px 16px;border-bottom:1px solid var(--border-1);
+}
+.side-sec--scroll{
+  flex:1;overflow:hidden;display:flex;flex-direction:column;
+  padding:14px 16px;border-bottom:1px solid var(--border-1);
+}
+.side-sec--last{flex:1;overflow:hidden;display:flex;flex-direction:column;padding:14px 16px;}
+.sec-eyebrow{
+  font:600 12px var(--font-sans);
+  letter-spacing:.06em;text-transform:uppercase;
+  color:var(--fg-3);margin-bottom:10px;
+}
+
+/* KPI cards */
+.kpi-row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.kpi-card{
+  background:var(--bg-sunken);border-radius:var(--radius-3);
+  padding:10px 8px;text-align:center;
+  border:1px solid var(--border-1);
+}
+.kpi-val{
+  font-family:var(--font-mono);font-size:21px;font-weight:600;
+  font-variant-numeric:tabular-nums;line-height:1.1;
+}
+.kpi-val--in{color:#0A6B3A;}
+.kpi-val--out{color:var(--line-r);}
+.kpi-lbl{font-size:12px;color:var(--fg-3);margin-top:4px;font-family:var(--font-tc);}
+
+/* Bar chart */
+.bar-list{
+  flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:3px;
+}
+.bar-list::-webkit-scrollbar{width:3px;}
+.bar-list::-webkit-scrollbar-thumb{background:var(--border-1);border-radius:2px;}
+.bar-row{
+  display:grid;grid-template-columns:18px 78px 1fr 56px;
+  align-items:center;gap:6px;padding:3px 4px;
+  border-radius:var(--radius-2);cursor:pointer;
+  transition:background 100ms;
+}
+.bar-row:hover{background:var(--bg-hover);}
+.bar-row--sel{background:color-mix(in oklab,var(--line-r) 8%,transparent);}
+.bar-rank{font-family:var(--font-mono);font-size:12px;color:var(--fg-3);text-align:right;}
+.bar-name{
+  font-family:var(--font-tc);font-size:14px;font-weight:500;
+  color:var(--fg-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.bar-track{height:6px;background:var(--border-1);border-radius:3px;overflow:hidden;position:relative;}
+.bar-fill-out{
+  position:absolute;inset:0 auto 0 0;
+  background:var(--line-r);opacity:.28;border-radius:3px;
+  transition:width .4s cubic-bezier(.4,0,.2,1);
+}
+.bar-fill-in{
+  position:absolute;inset:0 auto 0 0;
+  background:var(--line-r);opacity:.8;border-radius:3px;
+  transition:width .4s cubic-bezier(.4,0,.2,1);
+}
+.bar-val{
+  font-family:var(--font-mono);font-size:13px;color:var(--fg-2);
+  text-align:right;font-variant-numeric:tabular-nums;
+}
+
+/* Pie chart */
+.pie-wrap{display:flex;gap:12px;align-items:flex-start;}
+.pie-legend{flex:1;display:flex;flex-direction:column;gap:5px;min-width:0;}
+.pie-item{display:flex;align-items:center;gap:6px;font-size:13px;}
+.pie-swatch{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.pie-station-name{font-family:var(--font-tc);color:var(--fg-2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pie-pct{font-family:var(--font-mono);font-size:12px;color:var(--fg-3);}
+
+/* Theme toggle button */
+.theme-toggle{
+  display:flex;align-items:center;justify-content:center;
+  width:32px;height:32px;
+  background:var(--bg-sunken);
+  border:1px solid var(--border-1);
+  border-radius:var(--radius-2);
+  color:var(--fg-2);font-size:17px;
+  cursor:pointer;transition:background 140ms,color 140ms,transform 200ms;
+  flex-shrink:0;
+}
+.theme-toggle:hover{background:var(--bg-hover);color:var(--fg-1);transform:scale(1.08);}
+
+/* Loading overlay */
+.loading{
+  position:fixed;inset:0;background:var(--bg-app);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:12px;z-index:9999;
+}
+.loading-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--line-r);
+  animation:blink 1s ease-in-out infinite;
+}
+.loading-dot:nth-child(2){animation-delay:.2s;}
+.loading-dot:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,100%{opacity:.2;}50%{opacity:1;}}
+.loading-dots{display:flex;gap:6px;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+  /* Set theme before React mounts to prevent flash */
+  (function(){
+    var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  })();
+</script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback, useMemo } = React;
+
+/* ═══════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════ */
+const LINE_COLORS = { BR:'#B57A24',R:'#E3002C',G:'#008659',O:'#F8B61C',BL:'#0070BD',Y:'#E5C100' };
+
+const RED_LINE = [
+  { code:'R28', tc:'淡水',         en:'Tamsui',               transfers:[] },
+  { code:'R27', tc:'紅樹林',       en:'Hongshulin',           transfers:[] },
+  { code:'R26', tc:'竹圍',         en:'Zhuwei',               transfers:[] },
+  { code:'R25', tc:'關渡',         en:'Guandu',               transfers:[] },
+  { code:'R24', tc:'忠義',         en:'Zhongyi',              transfers:[] },
+  { code:'R23', tc:'復興崗',       en:'Fuxinggang',           transfers:[] },
+  { code:'R22', tc:'北投',         en:'Beitou',               transfers:[], hasBranch:true },
+  { code:'R22A',tc:'新北投',       en:'Xinbeitou',            transfers:[], isBranch:true },
+  { code:'R21', tc:'奇岩',         en:'Qiyan',                transfers:[] },
+  { code:'R20', tc:'唭哩岸',       en:"Qili'an",              transfers:[] },
+  { code:'R19', tc:'石牌',         en:'Shipai',               transfers:[] },
+  { code:'R18', tc:'明德',         en:'Mingde',               transfers:[] },
+  { code:'R17', tc:'芝山',         en:'Zhishan',              transfers:[] },
+  { code:'R16', tc:'士林',         en:'Shilin',               transfers:[] },
+  { code:'R15', tc:'劍潭',         en:'Jiantan',              transfers:[] },
+  { code:'R14', tc:'圓山',         en:'Yuanshan',             transfers:[] },
+  { code:'R13', tc:'民權西路',     en:'Minquan W. Rd.',       transfers:['O'] },
+  { code:'R12', tc:'雙連',         en:'Shuanglian',           transfers:[] },
+  { code:'R11', tc:'中山',         en:'Zhongshan',            transfers:['G'] },
+  { code:'R10', tc:'台北車站',     en:'Taipei Main Station',  transfers:['BL'], isInterchange:true },
+  { code:'R09', tc:'台大醫院',     en:'NTU Hospital',         transfers:[] },
+  { code:'R08', tc:'中正紀念堂',   en:'C.K.S. Memorial Hall', transfers:['G'] },
+  { code:'R07', tc:'東門',         en:'Dongmen',              transfers:['O'] },
+  { code:'R06', tc:'大安森林公園', en:'Daan Park',            transfers:[] },
+  { code:'R05', tc:'大安',         en:'Daan',                 transfers:['BR'], isInterchange:true },
+  { code:'R04', tc:'信義安和',     en:'Xinyi Anhe',           transfers:[] },
+  { code:'R03', tc:'台北101/世貿', en:'Taipei 101/WTC',       transfers:[] },
+  { code:'R02', tc:'象山',         en:'Xiangshan',            transfers:[] },
+];
+const MAIN_LINE   = RED_LINE.filter(s => !s.isBranch);
+const BRANCH_ST   = RED_LINE.find(s => s.isBranch);
+const ALL_STATIONS = RED_LINE; // for KPIs
+
+const DATA_HOURS  = [0,4,6,8,10,12,14,16,18,20,22];
+const TIME_PRESETS = [
+  { id:'all',     tc:'全日',     hours:DATA_HOURS },
+  { id:'morning', tc:'早上尖峰', hours:[6,8] },
+  { id:'midday',  tc:'中午時段', hours:[10,12] },
+  { id:'evening', tc:'晚間尖峰', hours:[16,18] },
+];
+const DAY_LABELS  = ['週日','週一','週二','週三','週四','週五','週六'];
+const PIE_COLORS  = ['#E3002C','#EB3E61','#F37088','#F9A2B0','#B61E3E','#85162F','#C2C8D2'];
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+function formatBig(n) {
+  if (!n) return '0';
+  return n >= 100000 ? (n/10000).toFixed(1)+'萬' : n.toLocaleString('zh-TW');
+}
+function fmtK(n) {
+  if (!n) return '0';
+  if (n >= 10000) return (n/10000).toFixed(1)+'萬';
+  if (n >= 1000)  return (n/1000).toFixed(1)+'K';
+  return String(n);
+}
+function hkey(h) { return String(h).padStart(2,'0')+':00'; }
+
+function aggregate(data, dateMode, selectedDate, selectedWeekday, timeMode, selectedPreset, selectedHour) {
+  if (!data) return null;
+  const names = ALL_STATIONS.map(s => s.tc);
+  const hours = timeMode === 'preset'
+    ? (TIME_PRESETS.find(p => p.id === selectedPreset)?.hours || DATA_HOURS)
+    : [selectedHour];
+
+  let dates = Object.keys(data.daily);
+  if (dateMode === 'daily') {
+    if (selectedDate) dates = [selectedDate];
+  } else {
+    dates = dates.filter(d => selectedWeekday === null || new Date(d).getDay() === selectedWeekday);
+  }
+
+  const byStation = {};
+  names.forEach(n => { byStation[n] = { in:0, out:0 }; });
+
+  dates.forEach(date => {
+    const day = data.daily[date];
+    if (!day) return;
+    names.forEach(name => {
+      const st = day[name];
+      if (!st) return;
+      hours.forEach(h => {
+        const slot = st[hkey(h)];
+        if (!slot) return;
+        byStation[name].in  += slot.in  || 0;
+        byStation[name].out += slot.out || 0;
+      });
+    });
+  });
+
+  let totalIn = 0, totalOut = 0;
+  names.forEach(n => { totalIn += byStation[n].in; totalOut += byStation[n].out; });
+  return { byStation, totalIn, totalOut };
+}
+
+/* ═══════════════════════════════════════════
+   LINEAR MAP
+═══════════════════════════════════════════ */
+const GAP    = 140;  // px between station centers (wider for 2× elements)
+const PAD_X  = 220;  // horizontal padding
+const SVG_H  = 620;  // total svg height
+const MAIN_Y = 340;  // y of the main track
+const BR_LEN = 160;  // branch stub length (upward)
+
+function LinearMap({ selected, onSelect, agg }) {
+  const wrapRef = useRef();
+  const dragRef = useRef({ active:false, lastX:0, moved:false });
+
+  const mainSts = MAIN_LINE;
+  const totalW  = PAD_X * 2 + (mainSts.length - 1) * GAP;
+  const beitouI = mainSts.findIndex(s => s.hasBranch);
+  const beitouX = PAD_X + beitouI * GAP;
+
+  const maxFlow = useMemo(() => {
+    if (!agg) return 1;
+    return Math.max(...mainSts.map(s => (agg.byStation[s.tc]?.in||0)+(agg.byStation[s.tc]?.out||0)), 1);
+  }, [agg]);
+
+  // Drag-to-scroll (horizontal only)
+  const onMD = useCallback(e => {
+    dragRef.current = { active:true, lastX:e.clientX, moved:false };
+    wrapRef.current.classList.add('dragging');
+    e.preventDefault();
+  }, []);
+  const onMM = useCallback(e => {
+    if (!dragRef.current.active || !wrapRef.current) return;
+    const dx = e.clientX - dragRef.current.lastX;
+    dragRef.current.lastX = e.clientX;
+    if (Math.abs(dx) > 2) dragRef.current.moved = true;
+    wrapRef.current.scrollLeft -= dx;
+  }, []);
+  const onMU = useCallback(() => {
+    dragRef.current.active = false;
+    wrapRef.current?.classList.remove('dragging');
+  }, []);
+  // Guard click after drag
+  const guardedSelect = useCallback((name, isSel) => {
+    if (dragRef.current.moved) return;
+    onSelect(isSel ? null : name);
+  }, [onSelect]);
+
+  // Scroll to selected station
+  useEffect(() => {
+    if (!selected || !wrapRef.current) return;
+    const i = mainSts.findIndex(s => s.tc === selected);
+    if (i < 0) return;
+    const x = PAD_X + i * GAP;
+    wrapRef.current.scrollTo({ left: x - wrapRef.current.clientWidth/2, behavior:'smooth' });
+  }, [selected]);
+
+  // Initial center on 台北車站
+  useEffect(() => {
+    if (!wrapRef.current) return;
+    const i = mainSts.findIndex(s => s.code === 'R10');
+    const x = PAD_X + i * GAP;
+    setTimeout(() => {
+      if (wrapRef.current) wrapRef.current.scrollLeft = x - wrapRef.current.clientWidth/2;
+    }, 80);
+  }, []);
+
+  return (
+    <div className="linear-wrap" ref={wrapRef}
+      onMouseDown={onMD} onMouseMove={onMM} onMouseUp={onMU} onMouseLeave={onMU}>
+      <svg width={totalW} height={SVG_H} style={{display:'block'}}>
+        {/* ── Track line ── */}
+        <line
+          x1={PAD_X} y1={MAIN_Y}
+          x2={PAD_X+(mainSts.length-1)*GAP} y2={MAIN_Y}
+          stroke="var(--line-r)" strokeWidth={10} strokeLinecap="round"
+        />
+        {/* ── Branch stub (up from 北投) ── */}
+        {beitouI >= 0 && (
+          <line
+            x1={beitouX} y1={MAIN_Y} x2={beitouX} y2={MAIN_Y-BR_LEN}
+            stroke="var(--line-r)" strokeWidth={7} opacity={0.7}
+          />
+        )}
+        {/* ── 新北投 branch station ── labels go LEFT so they don't overlap 北投 ── */}
+        {BRANCH_ST && beitouI >= 0 && (() => {
+          const flow  = agg?.byStation[BRANCH_ST.tc];
+          const total = (flow?.in||0)+(flow?.out||0);
+          const r     = 13 + Math.min(7, Math.log10(1+total/300));
+          const isSel = selected === BRANCH_ST.tc;
+          const bx    = beitouX, by = MAIN_Y - BR_LEN;
+          return (
+            <g key="R22A" onClick={() => guardedSelect(BRANCH_ST.tc, isSel)} style={{cursor:'pointer'}}>
+              {isSel && <circle cx={bx} cy={by} r={r+18} fill="var(--line-r)" opacity={.12}/>}
+              {total > 0 && <circle cx={bx} cy={by} r={r+10} fill="var(--line-r)" opacity={Math.min(.2,total/maxFlow*.3)}/>}
+              <circle cx={bx} cy={by} r={r}
+                fill={isSel?"var(--line-r)":"var(--bg-surface)"}
+                stroke="var(--line-r)" strokeWidth={isSel?0:4}/>
+              {/* labels to the LEFT of the dot */}
+              <text x={bx-r-16} y={by-10} textAnchor="end" fontSize={17} fontFamily="IBM Plex Mono" fontWeight="600"
+                fill={isSel?"var(--line-r)":"var(--fg-3)"}>R22A</text>
+              <text x={bx-r-16} y={by+18} textAnchor="end" fontSize={24} fontFamily="Noto Sans TC" fontWeight={isSel?700:500}
+                fill={isSel?"var(--line-r)":"var(--fg-1)"}>新北投</text>
+              <text x={bx-r-16} y={by+42} textAnchor="end" fontSize={17} fontFamily="IBM Plex Sans"
+                fill={isSel?"var(--line-r)":"var(--fg-3)"}>Xinbeitou</text>
+            </g>
+          );
+        })()}
+
+        {/* ── Main line stations ── */}
+        {mainSts.map((s, i) => {
+          const x = PAD_X + i * GAP;
+          // Force 北投 labels BELOW so the upward branch stub doesn't cover them
+          const above  = s.hasBranch ? false : (i % 2 === 0);
+          const isSel  = selected === s.tc;
+          const isXfer = (s.transfers?.length || 0) > 0;
+          const flow   = agg?.byStation[s.tc];
+          const total  = (flow?.in||0)+(flow?.out||0);
+          // 2× base radii; flow bonus also 2×
+          const r      = (isXfer ? 18 : 14) + Math.min(7, Math.log10(1+total/300));
+
+          // Fixed tick endpoint — 2× longer than before
+          const TICK_END = 76;
+          const tk1 = above ? MAIN_Y - r        : MAIN_Y + r;
+          const tk2 = above ? MAIN_Y - TICK_END : MAIN_Y + TICK_END;
+          // Labels: TC closest to tick, then EN, then code — all gaps 2×
+          const lbY   = above ? MAIN_Y - TICK_END - 28 : MAIN_Y + TICK_END + 32; // TC
+          const enY   = above ? MAIN_Y - TICK_END - 64 : MAIN_Y + TICK_END + 68; // EN
+          const codeY = above ? MAIN_Y - TICK_END - 96 : MAIN_Y + TICK_END + 100; // code
+
+          // Satellite y: opposite side from labels so they never touch text
+          const satCY = above ? MAIN_Y + r + 20 : MAIN_Y - r - 20;
+
+          return (
+            <g key={s.code} onClick={() => guardedSelect(s.tc, isSel)} style={{cursor:'pointer'}}>
+              {/* Selected halo */}
+              {isSel && <circle cx={x} cy={MAIN_Y} r={r+20} fill="var(--line-r)" opacity={.10}/>}
+              {/* Flow glow */}
+              {total>0 && <circle cx={x} cy={MAIN_Y} r={r+10} fill="var(--line-r)" opacity={Math.min(.20,total/maxFlow*.28)}/>}
+              {/* Transfer satellite circles — one per transfer line, spread horizontally */}
+              {isXfer && s.transfers.map((t, ti) => {
+                const n  = s.transfers.length;
+                const ox = (ti - (n-1)/2) * 22; // horizontal spread for multiple transfers
+                return (
+                  <circle key={t} cx={x+ox} cy={satCY} r={9}
+                    fill={LINE_COLORS[t]||'#888'}
+                    stroke="var(--bg-surface)" strokeWidth={3}
+                  />
+                );
+              })}
+              {/* Tick — 2× thicker */}
+              <line x1={x} y1={tk1} x2={x} y2={tk2} stroke="var(--border-2)" strokeWidth={2.5}/>
+              {/* Station dot */}
+              <circle
+                cx={x} cy={MAIN_Y} r={r}
+                fill={isSel?"var(--line-r)":"var(--bg-surface)"}
+                stroke="var(--line-r)"
+                strokeWidth={isSel?0:(isXfer?5:4)}
+              />
+              {/* TC name (closest to tick) — 2× font */}
+              <text x={x} y={lbY} textAnchor="middle"
+                fontSize={24} fontFamily="Noto Sans TC" fontWeight={isSel?700:500}
+                fill={isSel?"var(--line-r)":"var(--fg-1)"}
+              >{s.tc}</text>
+              {/* EN name — 2× font */}
+              <text x={x} y={enY} textAnchor="middle"
+                fontSize={17} fontFamily="IBM Plex Sans"
+                fill={isSel?"var(--line-r)":"var(--fg-3)"}
+              >{s.en}</text>
+              {/* Station code (outermost) — 2× font */}
+              <text x={x} y={codeY} textAnchor="middle"
+                fontSize={17} fontFamily="IBM Plex Mono" fontWeight="600"
+                fill={isSel?"var(--line-r)":"var(--fg-3)"} letterSpacing=".04em"
+              >{s.code}</text>
+            </g>
+          );
+        })}
+
+        {/* Endpoint markers — 2× font */}
+        <text x={PAD_X-20} y={MAIN_Y+6} textAnchor="end"
+          fontSize={20} fontFamily="IBM Plex Mono" fontWeight="700" fill="var(--line-r)">R28 ←</text>
+        <text x={PAD_X+(mainSts.length-1)*GAP+20} y={MAIN_Y+6} textAnchor="start"
+          fontSize={20} fontFamily="IBM Plex Mono" fontWeight="700" fill="var(--line-r)">→ R02</text>
+      </svg>
+    </div>
+  );
+}
+
+/* Station detail card */
+function StationCard({ stationName, agg, onClose }) {
+  const s    = RED_LINE.find(x => x.tc === stationName);
+  const flow = agg?.byStation[stationName] || { in:0, out:0 };
+  const tot  = flow.in + flow.out;
+  const inPct = tot ? Math.round(flow.in/tot*100) : 50;
+  return (
+    <div className="station-card">
+      <div className="card-head">
+        <div>
+          <span className="card-code">{s?.code}</span>
+          <div className="card-name-tc">{stationName}</div>
+          <div className="card-name-en">{s?.en}</div>
+        </div>
+        <button className="card-close" onClick={onClose}>✕ 關閉</button>
+      </div>
+      {s?.transfers?.length > 0 && (
+        <div className="card-transfers">
+          {s.transfers.map(t => (
+            <span key={t} className="transfer-chip" style={{background:LINE_COLORS[t]||'#666'}}>{t} 線</span>
+          ))}
+        </div>
+      )}
+      <div className="card-kpis">
+        <div className="kpi-mini kpi-mini--in">
+          <div className="kpi-mini__val">{formatBig(flow.in)}</div>
+          <div className="kpi-mini__lbl">進站 Entries</div>
+        </div>
+        <div className="kpi-mini kpi-mini--out">
+          <div className="kpi-mini__val">{formatBig(flow.out)}</div>
+          <div className="kpi-mini__lbl">出站 Exits</div>
+        </div>
+        <div className="kpi-mini">
+          <div className="kpi-mini__val">{formatBig(tot)}</div>
+          <div className="kpi-mini__lbl">合計 Total</div>
+        </div>
+      </div>
+      <div className="card-ratio">
+        <span className="card-ratio-label" style={{textAlign:'right'}}>進 {inPct}%</span>
+        <div className="card-ratio-track">
+          <div className="card-ratio-fill" style={{width:`${inPct}%`}}/>
+        </div>
+        <span className="card-ratio-label" style={{color:'var(--line-r)'}}>出 {100-inPct}%</span>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   NETWORK MAP (schematic, pan/zoom)
+═══════════════════════════════════════════ */
+function NetworkMap({ agg, selected, onSelect }) {
+  const containerRef = useRef();
+  const [pan,   setPan]   = useState({ x:60,  y:40 });
+  const [scale, setScale] = useState(0.58);
+  const dragRef = useRef(null);
+  const [tip,   setTip]   = useState(null);
+
+  // Station schematic positions (1000×1050 canvas per DESIGN.md)
+  const pos = useMemo(() => {
+    const p = {};
+    // Diagonal: 淡水(R28) → 芝山(R17)  from (95,100) to (480,485)
+    const diag  = ['淡水','紅樹林','竹圍','關渡','忠義','復興崗','北投','奇岩','唭哩岸','石牌','明德','芝山'];
+    diag.forEach((n,i) => {
+      const t = i/(diag.length-1);
+      p[n] = { x: 95+385*t, y: 100+385*t };
+    });
+    // Branch: 新北投 — perpendicular NE from 北投
+    p['新北投'] = { x: p['北投'].x+65, y: p['北投'].y-65 };
+    // Vertical: 芝山(R17) → 台北車站(R10)  from (480,485) to (480,835)
+    const vert  = ['芝山','士林','劍潭','圓山','民權西路','雙連','中山','台北車站'];
+    vert.forEach((n,i) => {
+      const t = i/(vert.length-1);
+      p[n] = { x: 480, y: 485+350*t };
+    });
+    // Horizontal: 台北車站(R10) → 大安(R05)  from (480,835) to (730,835)
+    const horiz = ['台北車站','台大醫院','中正紀念堂','東門','大安森林公園','大安'];
+    horiz.forEach((n,i) => {
+      const t = i/(horiz.length-1);
+      p[n] = { x: 480+250*t, y: 835 };
+    });
+    // SE diagonal: 大安(R05) → 象山(R02)  from (730,835) to (835,940)
+    const se    = ['大安','信義安和','台北101/世貿','象山'];
+    se.forEach((n,i) => {
+      const t = i/(se.length-1);
+      p[n] = { x: 730+105*t, y: 835+105*t };
+    });
+    return p;
+  }, []);
+
+  const pathD = useMemo(() => {
+    const pts = MAIN_LINE.map(s => pos[s.tc]).filter(Boolean);
+    return pts.map((p,i) => `${i?'L':'M'}${p.x},${p.y}`).join(' ');
+  }, [pos]);
+
+  const branchD = useMemo(() => {
+    const a = pos['北投'], b = pos['新北投'];
+    return a && b ? `M${a.x},${a.y} L${b.x},${b.y}` : '';
+  }, [pos]);
+
+  const maxFlow = useMemo(() => {
+    if (!agg) return 1;
+    return Math.max(...ALL_STATIONS.map(s => (agg.byStation[s.tc]?.in||0)+(agg.byStation[s.tc]?.out||0)), 1);
+  }, [agg]);
+
+  const onWheel = useCallback(e => {
+    e.preventDefault();
+    setScale(s => Math.max(0.35, Math.min(3.5, s * (e.deltaY < 0 ? 1.1 : 0.9))));
+  }, []);
+  const onMD = useCallback(e => {
+    dragRef.current = { sx: e.clientX-pan.x, sy: e.clientY-pan.y };
+  }, [pan]);
+  const onMM = useCallback(e => {
+    if (!dragRef.current) return;
+    setPan({ x: e.clientX-dragRef.current.sx, y: e.clientY-dragRef.current.sy });
+  }, []);
+  const onMU = useCallback(() => { dragRef.current = null; }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.addEventListener('wheel', onWheel, { passive:false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, [onWheel]);
+
+  return (
+    <div ref={containerRef} className="network-wrap"
+      onMouseDown={onMD} onMouseMove={onMM} onMouseUp={onMU} onMouseLeave={onMU}>
+      <div className="zoom-ctrls">
+        <button className="zoom-btn" onClick={() => setScale(s=>Math.min(3.5,s*1.2))}>+</button>
+        <button className="zoom-btn" onClick={() => setScale(s=>Math.max(0.35,s*0.8))}>−</button>
+        <button className="zoom-btn" style={{fontSize:14}} title="Reset"
+          onClick={() => { setScale(0.58); setPan({x:60,y:40}); }}>⤾</button>
+      </div>
+      <svg width="100%" height="100%" style={{display:'block',background:'var(--bg-app)'}}>
+        <defs>
+          <pattern id="netgrid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <circle cx="40" cy="40" r="0.8" fill="var(--border-1)" opacity=".5"/>
+          </pattern>
+        </defs>
+        <g transform={`translate(${pan.x},${pan.y}) scale(${scale})`}>
+          <rect x="-300" y="-300" width="1600" height="1650" fill="url(#netgrid)"/>
+
+          {/* Line paths */}
+          <path d={pathD} fill="none" stroke="var(--line-r)" strokeWidth={8} strokeLinecap="round" strokeLinejoin="round"/>
+          <path d={branchD} fill="none" stroke="var(--line-r)" strokeWidth={5} strokeLinecap="round" opacity={.7}/>
+
+          {/* Heat glows */}
+          {agg && ALL_STATIONS.map(s => {
+            const p = pos[s.tc]; if (!p) return null;
+            const flow  = agg.byStation[s.tc];
+            const total = (flow?.in||0)+(flow?.out||0);
+            const ratio = total/maxFlow;
+            if (ratio < 0.25) return null;
+            return <circle key={s.tc+'g'} cx={p.x} cy={p.y} r={35+ratio*35} fill="var(--line-r)" opacity={ratio*.14}/>;
+          })}
+
+          {/* Stations */}
+          {ALL_STATIONS.map(s => {
+            const p    = pos[s.tc]; if (!p) return null;
+            const isSel = selected === s.tc;
+            const isXfer = (s.transfers?.length||0)>0||s.isInterchange;
+            const flow  = agg?.byStation[s.tc];
+            const total = (flow?.in||0)+(flow?.out||0);
+            const r     = (isXfer ? 11 : 8) + Math.min(5, Math.log10(1+total/300));
+            return (
+              <g key={s.tc}
+                onClick={() => onSelect(isSel?null:s.tc)}
+                onMouseEnter={e => setTip({ name:s.tc, code:s.code, flow, cx:e.clientX, cy:e.clientY })}
+                onMouseMove={e  => setTip(t => t ? {...t,cx:e.clientX,cy:e.clientY} : null)}
+                onMouseLeave={() => setTip(null)}
+                style={{cursor:'pointer'}}>
+                {isSel && <circle cx={p.x} cy={p.y} r={r+12} fill="none" stroke="var(--line-r)" strokeWidth={2} strokeDasharray="5 4"/>}
+                <circle cx={p.x} cy={p.y} r={r}
+                  fill="var(--bg-surface)" stroke="var(--line-r)"
+                  strokeWidth={isSel?4.5:isXfer?3:2}/>
+                {isXfer && <circle cx={p.x} cy={p.y} r={r-4} fill="none" stroke="var(--line-r)" strokeWidth={1.5}/>}
+                <text x={p.x+r+8} y={p.y-4} fontSize={13} fontFamily="Noto Sans TC"
+                  fontWeight={isSel?700:500} fill={isSel?"var(--line-r)":"var(--fg-1)"}>{s.tc}</text>
+                <text x={p.x+r+8} y={p.y+12} fontSize={9} fontFamily="IBM Plex Mono"
+                  fill="var(--fg-3)">{s.code}</text>
+              </g>
+            );
+          })}
+        </g>
+      </svg>
+      {/* Tooltip */}
+      {tip && (
+        <div style={{
+          position:'fixed',left:tip.cx+16,top:tip.cy-24,
+          background:'var(--bg-surface)',border:'1px solid var(--border-1)',
+          borderRadius:'var(--radius-3)',padding:'10px 14px',
+          boxShadow:'var(--shadow-3)',pointerEvents:'none',zIndex:999,minWidth:148
+        }}>
+          <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:8}}>
+            <span style={{fontFamily:'var(--font-mono)',fontSize:10,fontWeight:700,padding:'2px 6px',background:'var(--line-r)',color:'#fff',borderRadius:2}}>{tip.code}</span>
+            <span style={{fontFamily:'var(--font-tc)',fontWeight:700,fontSize:14}}>{tip.name}</span>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:4}}>
+            {[['進站',(tip.flow?.in)||0,'#0A6B3A'],['出站',(tip.flow?.out)||0,'var(--line-r)'],['合計',((tip.flow?.in)||0)+((tip.flow?.out)||0),'var(--fg-1)']].map(([l,v,c]) => (
+              <div key={l} style={{textAlign:'center',background:'var(--bg-sunken)',borderRadius:'var(--radius-2)',padding:'4px 6px'}}>
+                <div style={{fontFamily:'var(--font-mono)',fontSize:12,fontWeight:600,color:c}}>{formatBig(v)}</div>
+                <div style={{fontSize:9,color:'var(--fg-3)',marginTop:2}}>{l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   SIDE PANEL: BAR CHART
+═══════════════════════════════════════════ */
+function BarChart({ agg, selected, onSelect }) {
+  if (!agg) return <div style={{color:'var(--fg-3)',fontSize:12,padding:'8px 0'}}>載入中…</div>;
+  const sorted = [...MAIN_LINE, BRANCH_ST]
+    .map(s => ({ ...s, ...agg.byStation[s.tc], total:(agg.byStation[s.tc]?.in||0)+(agg.byStation[s.tc]?.out||0) }))
+    .sort((a,b) => b.total-a.total);
+  const maxTot = sorted[0]?.total || 1;
+  return (
+    <div className="bar-list">
+      {sorted.map((s,i) => (
+        <div key={s.tc}
+          className={`bar-row ${selected===s.tc?'bar-row--sel':''}`}
+          onClick={() => onSelect(selected===s.tc?null:s.tc)}>
+          <span className="bar-rank">{i+1}</span>
+          <span className="bar-name">{s.tc}</span>
+          <div className="bar-track">
+            <div className="bar-fill-out" style={{width:`${s.total/maxTot*100}%`}}/>
+            <div className="bar-fill-in"  style={{width:`${(s.in||0)/maxTot*100}%`}}/>
+          </div>
+          <span className="bar-val">{fmtK(s.total)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   SIDE PANEL: PIE CHART
+═══════════════════════════════════════════ */
+function PieChart({ agg }) {
+  if (!agg) return null;
+  const sorted = [...MAIN_LINE, BRANCH_ST]
+    .map(s => ({ name:s.tc, total:(agg.byStation[s.tc]?.in||0)+(agg.byStation[s.tc]?.out||0) }))
+    .sort((a,b) => b.total-a.total);
+  const top6    = sorted.slice(0,6);
+  const other   = sorted.slice(6).reduce((s,x)=>s+x.total,0);
+  const pieces  = [...top6, { name:'其他',total:other }];
+  const grand   = pieces.reduce((s,x)=>s+x.total,0)||1;
+
+  const OX=60,OY=60,R=52,ri=30;
+  let ang = -Math.PI/2;
+  const arcs = pieces.map((p,i) => {
+    const frac = p.total/grand;
+    const a0=ang, a1=ang+frac*Math.PI*2; ang=a1;
+    const lg = frac>0.5?1:0;
+    const lx1=OX+R*Math.cos(a0),ly1=OY+R*Math.sin(a0);
+    const lx2=OX+R*Math.cos(a1),ly2=OY+R*Math.sin(a1);
+    const sx1=OX+ri*Math.cos(a0),sy1=OY+ri*Math.sin(a0);
+    const sx2=OX+ri*Math.cos(a1),sy2=OY+ri*Math.sin(a1);
+    const d = `M${lx1},${ly1} A${R},${R},0,${lg},1,${lx2},${ly2} L${sx2},${sy2} A${ri},${ri},0,${lg},0,${sx1},${sy1} Z`;
+    return { ...p, d, color:PIE_COLORS[i], frac };
+  });
+
+  return (
+    <div className="pie-wrap">
+      <svg viewBox="0 0 120 120" width={108} height={108} style={{flexShrink:0}}>
+        {arcs.map((a,i) => <path key={i} d={a.d} fill={a.color}/>)}
+        <text x={OX} y={OY-5} textAnchor="middle" fontSize={7} fontFamily="IBM Plex Mono" fill="var(--fg-3)">TOTAL</text>
+        <text x={OX} y={OY+8} textAnchor="middle" fontSize={10} fontFamily="IBM Plex Mono" fontWeight="600" fill="var(--fg-1)">{formatBig(grand)}</text>
+      </svg>
+      <div className="pie-legend">
+        {arcs.map((a,i) => (
+          <div key={i} className="pie-item">
+            <span className="pie-swatch" style={{background:a.color}}/>
+            <span className="pie-station-name">{a.name}</span>
+            <span className="pie-pct">{(a.frac*100).toFixed(1)}%</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   TOP BAR
+═══════════════════════════════════════════ */
+function TopBar({ data, dateMode, setDateMode, selDate, setSelDate, selWd, setSelWd,
+                  timeMode, setTimeMode, selPreset, setSelPreset, selHour, setSelHour,
+                  isDark, onToggleDark }) {
+  const dates = data ? Object.keys(data.daily).sort() : [];
+  return (
+    <header className="topbar">
+      {/* Brand */}
+      <div className="topbar__brand">
+        <div className="topbar__title">
+          <span className="topbar__badge">R</span>
+          台北捷運 · 淡水信義線
+        </div>
+        <div className="topbar__sub">人流監測 · Passenger Monitor · 2026/03</div>
+      </div>
+
+      {/* Filters */}
+      <div className="topbar__filters">
+        {/* Date mode */}
+        <div className="filter-group">
+          <span className="filter-label">日期</span>
+          <div className="seg-ctrl">
+            <button className={`seg-btn ${dateMode==='daily'?'seg-btn--on':''}`}
+              onClick={() => setDateMode('daily')}>依日期</button>
+            <button className={`seg-btn ${dateMode==='weekday'?'seg-btn--on':''}`}
+              onClick={() => setDateMode('weekday')}>依星期</button>
+          </div>
+          {dateMode === 'daily' ? (
+            <select className="filter-select" value={selDate||''} onChange={e => setSelDate(e.target.value||null)}>
+              <option value="">全部日期</option>
+              {dates.map(d => (
+                <option key={d} value={d}>{d} {DAY_LABELS[new Date(d).getDay()]}</option>
+              ))}
+            </select>
+          ) : (
+            <select className="filter-select" value={selWd??''} onChange={e => setSelWd(e.target.value===''?null:Number(e.target.value))}>
+              <option value="">全部星期</option>
+              {DAY_LABELS.map((l,i) => <option key={i} value={i}>{l}</option>)}
+            </select>
+          )}
+        </div>
+
+        <div className="filter-divider"/>
+
+        {/* Time mode */}
+        <div className="filter-group">
+          <span className="filter-label">時段</span>
+          <div className="seg-ctrl">
+            <button className={`seg-btn ${timeMode==='preset'?'seg-btn--on':''}`}
+              onClick={() => setTimeMode('preset')}>大時段</button>
+            <button className={`seg-btn ${timeMode==='hour'?'seg-btn--on':''}`}
+              onClick={() => setTimeMode('hour')}>小時</button>
+          </div>
+          {timeMode === 'preset' ? (
+            <div className="seg-ctrl">
+              {TIME_PRESETS.map(p => (
+                <button key={p.id}
+                  className={`seg-btn ${selPreset===p.id?'seg-btn--on':''}`}
+                  onClick={() => setSelPreset(p.id)}>{p.tc}</button>
+              ))}
+            </div>
+          ) : (
+            <select className="filter-select" value={selHour}
+              onChange={e => setSelHour(Number(e.target.value))}>
+              {DATA_HOURS.map(h => (
+                <option key={h} value={h}>{String(h).padStart(2,'0')}:00</option>
+              ))}
+            </select>
+          )}
+        </div>
+      </div>
+
+      {/* Line legend + theme toggle */}
+      <div className="topbar__legend">
+        {[{id:'BR',n:'文湖'},{id:'R',n:'淡水信義'},{id:'G',n:'松山新店'},{id:'O',n:'中和新蘆'},{id:'BL',n:'板南'}].map(l => (
+          <div key={l.id} className={`line-chip line-chip--${l.id} ${l.id==='R'?'line-chip--on':''}`} title={`${l.n}線`}>
+            <span className="line-chip__dot"/>
+            <span>{l.id}</span>
+          </div>
+        ))}
+        <button
+          className="theme-toggle"
+          onClick={onToggleDark}
+          title={isDark ? '切換為日間模式' : '切換為夜間模式'}
+        >
+          {isDark ? '☀️' : '🌙'}
+        </button>
+      </div>
+    </header>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   APP ROOT
+═══════════════════════════════════════════ */
+function App() {
+  const [data,       setData]       = useState(null);
+  const [loading,    setLoading]    = useState(true);
+  const [dateMode,   setDateMode]   = useState('daily');
+  const [selDate,    setSelDate]    = useState(null);
+  const [selWd,      setSelWd]      = useState(null);
+  const [timeMode,   setTimeMode]   = useState('preset');
+  const [selPreset,  setSelPreset]  = useState('all');
+  const [selHour,    setSelHour]    = useState(8);
+  const [selStation, setSelStation] = useState(null);
+  const [mapTab,     setMapTab]     = useState('linear');
+  const [isDark,     setIsDark]     = useState(
+    () => document.documentElement.getAttribute('data-theme') === 'dark'
+  );
+
+  const toggleDark = useCallback(() => {
+    setIsDark(d => {
+      const next = !d;
+      document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light');
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    fetch('data/mrt_data_202603.json')
+      .then(r => r.json())
+      .then(d => {
+        setData(d);
+        const dates = Object.keys(d.daily).sort();
+        if (dates.length) setSelDate(dates[0]);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Data load failed:', err);
+        setLoading(false);
+      });
+  }, []);
+
+  const agg = useMemo(() =>
+    aggregate(data, dateMode, selDate, selWd, timeMode, selPreset, selHour),
+    [data, dateMode, selDate, selWd, timeMode, selPreset, selHour]
+  );
+
+  if (loading) return (
+    <div className="loading">
+      <div className="loading-dots">
+        <div className="loading-dot"/><div className="loading-dot"/><div className="loading-dot"/>
+      </div>
+      <div style={{fontFamily:'var(--font-tc)',fontSize:14,color:'var(--fg-3)'}}>載入人流資料…</div>
+    </div>
+  );
+
+  return (
+    <div className="app">
+      <TopBar
+        data={data}
+        dateMode={dateMode} setDateMode={setDateMode}
+        selDate={selDate}   setSelDate={setSelDate}
+        selWd={selWd}       setSelWd={setSelWd}
+        timeMode={timeMode} setTimeMode={setTimeMode}
+        selPreset={selPreset} setSelPreset={setSelPreset}
+        selHour={selHour}   setSelHour={setSelHour}
+        isDark={isDark}     onToggleDark={toggleDark}
+      />
+      <div className="body">
+        {/* ── Map panel ── */}
+        <div className="map-panel">
+          <div className="map-tabs">
+            <button className={`map-tab ${mapTab==='linear'?'map-tab--on':''}`}
+              onClick={() => setMapTab('linear')}>線型圖</button>
+            <button className={`map-tab ${mapTab==='network'?'map-tab--on':''}`}
+              onClick={() => setMapTab('network')}>路網圖</button>
+          </div>
+          <div className="map-content">
+            {mapTab === 'linear' ? (
+              <>
+                <LinearMap
+                  selected={selStation}
+                  onSelect={setSelStation}
+                  agg={agg}
+                />
+                {selStation && (
+                  <StationCard
+                    stationName={selStation}
+                    agg={agg}
+                    onClose={() => setSelStation(null)}
+                  />
+                )}
+              </>
+            ) : (
+              <NetworkMap
+                agg={agg}
+                selected={selStation}
+                onSelect={setSelStation}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* ── Side panel ── */}
+        <aside className="side-panel">
+          {/* KPIs */}
+          <div className="side-sec">
+            <div className="sec-eyebrow">總計 · Summary</div>
+            <div className="kpi-row3">
+              <div className="kpi-card">
+                <div className="kpi-val kpi-val--in">{agg?formatBig(agg.totalIn):'—'}</div>
+                <div className="kpi-lbl">進站 Entries</div>
+              </div>
+              <div className="kpi-card">
+                <div className="kpi-val kpi-val--out">{agg?formatBig(agg.totalOut):'—'}</div>
+                <div className="kpi-lbl">出站 Exits</div>
+              </div>
+              <div className="kpi-card">
+                <div className="kpi-val">{agg?formatBig(agg.totalIn+agg.totalOut):'—'}</div>
+                <div className="kpi-lbl">合計 Total</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bar chart */}
+          <div className="side-sec--scroll">
+            <div className="sec-eyebrow">各站排行 · Station Ranking</div>
+            <BarChart agg={agg} selected={selStation} onSelect={setSelStation}/>
+          </div>
+
+          {/* Pie chart */}
+          <div className="side-sec--last">
+            <div className="sec-eyebrow">主要車站佔比 · Top Station Share</div>
+            <PieChart agg={agg}/>
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
