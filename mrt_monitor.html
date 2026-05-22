@@ -88,8 +88,8 @@ select{font-family:var(--font-sans);outline:none;}
   display:grid;
   grid-template-columns:minmax(240px,auto) 1fr auto;
   align-items:center;
-  gap:20px;
-  padding:10px 20px;
+  gap:28px;
+  padding:14px 28px;
   z-index:100;
   flex-shrink:0;
 }
@@ -105,7 +105,7 @@ select{font-family:var(--font-sans);outline:none;}
   font-size:11px;font-weight:700;color:#fff;flex-shrink:0;
 }
 .topbar__sub{font-family:var(--font-mono);font-size:11px;color:var(--fg-3);letter-spacing:.02em;}
-.topbar__filters{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.topbar__filters{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
 .topbar__legend{display:flex;align-items:center;gap:5px;}
 
 /* Filter atoms */
@@ -162,12 +162,12 @@ select{font-family:var(--font-sans);outline:none;}
   overflow:hidden;background:var(--bg-app);
 }
 .map-tabs{
-  display:flex;gap:0;padding:12px 18px 0;
+  display:flex;gap:0;padding:16px 24px 0;
   border-bottom:1px solid var(--border-1);
   background:var(--bg-surface);flex-shrink:0;
 }
 .map-tab{
-  background:transparent;border:none;padding:8px 16px;
+  background:transparent;border:none;padding:10px 20px;
   font:500 13px var(--font-tc);color:var(--fg-3);cursor:pointer;
   border-bottom:2px solid transparent;margin-bottom:-1px;
   transition:color 140ms,border-color 140ms;
@@ -275,13 +275,13 @@ select{font-family:var(--font-sans);outline:none;}
   display:flex;flex-direction:column;overflow:hidden;
 }
 .side-sec{
-  padding:14px 16px;border-bottom:1px solid var(--border-1);
+  padding:18px 20px;border-bottom:1px solid var(--border-1);
 }
 .side-sec--scroll{
   flex:1;overflow:hidden;display:flex;flex-direction:column;
-  padding:14px 16px;border-bottom:1px solid var(--border-1);
+  padding:18px 20px;border-bottom:1px solid var(--border-1);
 }
-.side-sec--last{flex:1;overflow:hidden;display:flex;flex-direction:column;padding:14px 16px;}
+.side-sec--last{flex:1;overflow:hidden;display:flex;flex-direction:column;padding:18px 20px;}
 .sec-eyebrow{
   font:600 12px var(--font-sans);
   letter-spacing:.06em;text-transform:uppercase;
@@ -292,7 +292,7 @@ select{font-family:var(--font-sans);outline:none;}
 .kpi-row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
 .kpi-card{
   background:var(--bg-sunken);border-radius:var(--radius-3);
-  padding:10px 8px;text-align:center;
+  padding:14px 10px;text-align:center;
   border:1px solid var(--border-1);
 }
 .kpi-val{
@@ -311,7 +311,7 @@ select{font-family:var(--font-sans);outline:none;}
 .bar-list::-webkit-scrollbar-thumb{background:var(--border-1);border-radius:2px;}
 .bar-row{
   display:grid;grid-template-columns:18px 78px 1fr 56px;
-  align-items:center;gap:6px;padding:3px 4px;
+  align-items:center;gap:8px;padding:6px 8px;
   border-radius:var(--radius-2);cursor:pointer;
   transition:background 100ms;
 }
@@ -339,8 +339,8 @@ select{font-family:var(--font-sans);outline:none;}
 }
 
 /* Pie chart */
-.pie-wrap{display:flex;gap:12px;align-items:flex-start;}
-.pie-legend{flex:1;display:flex;flex-direction:column;gap:5px;min-width:0;}
+.pie-wrap{display:flex;gap:18px;align-items:flex-start;}
+.pie-legend{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0;}
 .pie-item{display:flex;align-items:center;gap:6px;font-size:13px;}
 .pie-swatch{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
 .pie-station-name{font-family:var(--font-tc);color:var(--fg-2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -434,9 +434,9 @@ const ALL_STATIONS = RED_LINE; // for KPIs
 const DATA_HOURS  = [0,4,6,8,10,12,14,16,18,20,22];
 const TIME_PRESETS = [
   { id:'all',     tc:'全日',     hours:DATA_HOURS },
-  { id:'morning', tc:'早上尖峰', hours:[6,8] },
-  { id:'midday',  tc:'中午時段', hours:[10,12] },
-  { id:'evening', tc:'晚間尖峰', hours:[16,18] },
+  { id:'morning', tc:'早上', hours:[6,8] },
+  { id:'midday',  tc:'中午', hours:[10,12] },
+  { id:'evening', tc:'晚上', hours:[16,18] },
 ];
 const DAY_LABELS  = ['週日','週一','週二','週三','週四','週五','週六'];
 const PIE_COLORS  = ['#E3002C','#EB3E61','#F37088','#F9A2B0','#B61E3E','#85162F','#C2C8D2'];
@@ -456,7 +456,10 @@ function fmtK(n) {
 }
 function hkey(h) { return String(h).padStart(2,'0')+':00'; }
 
-function aggregate(data, dateMode, selectedDate, selectedWeekday, timeMode, selectedPreset, selectedHour) {
+function fmtMonth(ym) { return `${ym.slice(0,4)}/${ym.slice(4,6)}`; }
+function monthPrefix(ym) { return `${ym.slice(0,4)}-${ym.slice(4,6)}`; }
+
+function aggregate(data, dateMode, selectedDate, selectedWeekday, timeMode, selectedPreset, selectedHour, selMonth) {
   if (!data) return null;
   const names = ALL_STATIONS.map(s => s.tc);
   const hours = timeMode === 'preset'
@@ -464,6 +467,8 @@ function aggregate(data, dateMode, selectedDate, selectedWeekday, timeMode, sele
     : [selectedHour];
 
   let dates = Object.keys(data.daily);
+  // Month filter first
+  if (selMonth) dates = dates.filter(d => d.startsWith(monthPrefix(selMonth)));
   if (dateMode === 'daily') {
     if (selectedDate) dates = [selectedDate];
   } else {
@@ -971,8 +976,15 @@ function PieChart({ agg }) {
 ═══════════════════════════════════════════ */
 function TopBar({ data, dateMode, setDateMode, selDate, setSelDate, selWd, setSelWd,
                   timeMode, setTimeMode, selPreset, setSelPreset, selHour, setSelHour,
-                  isDark, onToggleDark }) {
-  const dates = data ? Object.keys(data.daily).sort() : [];
+                  selMonth, setSelMonth, isDark, onToggleDark }) {
+  const allDates = data ? Object.keys(data.daily).sort() : [];
+  const dates = selMonth
+    ? allDates.filter(d => d.startsWith(monthPrefix(selMonth)))
+    : allDates;
+  const months = data?.months || [];
+  const rangeLabel = months.length
+    ? `${fmtMonth(months[0])} – ${fmtMonth(months[months.length-1])}`
+    : '';
   return (
     <header className="topbar">
       {/* Brand */}
@@ -981,11 +993,23 @@ function TopBar({ data, dateMode, setDateMode, selDate, setSelDate, selWd, setSe
           <span className="topbar__badge">R</span>
           台北捷運 · 淡水信義線
         </div>
-        <div className="topbar__sub">人流監測 · Passenger Monitor · 2026/03</div>
+        <div className="topbar__sub">人流監測 · Passenger Monitor · {rangeLabel}</div>
       </div>
 
       {/* Filters */}
       <div className="topbar__filters">
+        {/* Month picker */}
+        <div className="filter-group">
+          <span className="filter-label">月份</span>
+          <select className="filter-select" value={selMonth||''}
+            onChange={e => { setSelMonth(e.target.value||null); setSelDate(null); }}>
+            <option value="">全部</option>
+            {months.map(ym => (
+              <option key={ym} value={ym}>{fmtMonth(ym)}</option>
+            ))}
+          </select>
+        </div>
+        <div className="filter-divider"/>
         {/* Date mode */}
         <div className="filter-group">
           <span className="filter-label">日期</span>
@@ -1053,7 +1077,7 @@ function TopBar({ data, dateMode, setDateMode, selDate, setSelDate, selWd, setSe
           onClick={onToggleDark}
           title={isDark ? '切換為日間模式' : '切換為夜間模式'}
         >
-          {isDark ? '☀️' : '🌙'}
+          <i className={isDark ? 'ph ph-sun' : 'ph ph-moon'} style={{fontSize:16}}/>
         </button>
       </div>
     </header>
@@ -1074,6 +1098,7 @@ function App() {
   const [selHour,    setSelHour]    = useState(8);
   const [selStation, setSelStation] = useState(null);
   const [mapTab,     setMapTab]     = useState('linear');
+  const [selMonth,   setSelMonth]   = useState(null);
   const [isDark,     setIsDark]     = useState(
     () => document.documentElement.getAttribute('data-theme') === 'dark'
   );
@@ -1087,12 +1112,19 @@ function App() {
   }, []);
 
   useEffect(() => {
-    fetch('data/mrt_data_202603.json')
+    fetch('data/mrt_redline_all.json')
       .then(r => r.json())
       .then(d => {
         setData(d);
-        const dates = Object.keys(d.daily).sort();
-        if (dates.length) setSelDate(dates[0]);
+        // Default to latest month
+        const latest = d.months?.[d.months.length - 1];
+        if (latest) {
+          setSelMonth(latest);
+          const firstDate = Object.keys(d.daily)
+            .filter(dd => dd.startsWith(monthPrefix(latest)))
+            .sort()[0];
+          if (firstDate) setSelDate(firstDate);
+        }
         setLoading(false);
       })
       .catch(err => {
@@ -1102,8 +1134,8 @@ function App() {
   }, []);
 
   const agg = useMemo(() =>
-    aggregate(data, dateMode, selDate, selWd, timeMode, selPreset, selHour),
-    [data, dateMode, selDate, selWd, timeMode, selPreset, selHour]
+    aggregate(data, dateMode, selDate, selWd, timeMode, selPreset, selHour, selMonth),
+    [data, dateMode, selDate, selWd, timeMode, selPreset, selHour, selMonth]
   );
 
   if (loading) return (
@@ -1125,6 +1157,7 @@ function App() {
         timeMode={timeMode} setTimeMode={setTimeMode}
         selPreset={selPreset} setSelPreset={setSelPreset}
         selHour={selHour}   setSelHour={setSelHour}
+        selMonth={selMonth} setSelMonth={setSelMonth}
         isDark={isDark}     onToggleDark={toggleDark}
       />
       <div className="body">
