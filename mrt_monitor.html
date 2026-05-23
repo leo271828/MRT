@@ -45,6 +45,8 @@
   --font-tc:"Noto Sans TC","IBM Plex Sans",-apple-system,sans-serif;
   --radius-1:2px; --radius-2:4px; --radius-3:8px;
   --radius-4:12px; --radius-pill:999px;
+  /* active line brand colour — overridden by JS when line switches */
+  --active-line: #E3002C;
 }
 /* dark mode via data-theme="dark" on <html> (set by JS on load + toggle) */
 [data-theme="dark"] {
@@ -100,7 +102,7 @@ select{font-family:var(--font-sans);outline:none;}
 }
 .topbar__badge{
   display:inline-flex;align-items:center;justify-content:center;
-  width:26px;height:26px;background:var(--line-r);
+  width:26px;height:26px;background:var(--active-line);
   border-radius:var(--radius-2);font-family:var(--font-mono);
   font-size:13px;font-weight:700;color:#fff;flex-shrink:0;
 }
@@ -132,7 +134,7 @@ select{font-family:var(--font-sans);outline:none;}
   font:500 13px var(--font-mono);color:var(--fg-1);cursor:pointer;
   transition:border-color 140ms;
 }
-.filter-select:focus{border-color:var(--line-r);}
+.filter-select:focus{border-color:var(--active-line);}
 .filter-divider{width:1px;height:22px;background:var(--border-1);flex-shrink:0;}
 
 /* Line chips */
@@ -152,6 +154,7 @@ select{font-family:var(--font-sans);outline:none;}
 .line-chip--O  .line-chip__dot{background:var(--line-o);}
 .line-chip--BL .line-chip__dot{background:var(--line-bl);}
 .line-chip--R.line-chip--on{color:var(--line-r);border-color:var(--line-r);background:color-mix(in oklab,var(--line-r) 8%,transparent);}
+.line-chip--G.line-chip--on{color:var(--line-g);border-color:var(--line-g);background:color-mix(in oklab,var(--line-g) 8%,transparent);}
 
 /* ════════════════════════════════════════════
    MAP PANEL
@@ -172,7 +175,7 @@ select{font-family:var(--font-sans);outline:none;}
   border-bottom:2px solid transparent;margin-bottom:-1px;
   transition:color 140ms,border-color 140ms;
 }
-.map-tab--on{color:var(--line-r);border-bottom-color:var(--line-r);font-weight:600;}
+.map-tab--on{color:var(--active-line);border-bottom-color:var(--active-line);font-weight:600;}
 .map-content{flex:1;overflow:hidden;position:relative;min-height:0;}
 
 /* Linear map */
@@ -194,7 +197,7 @@ select{font-family:var(--font-sans);outline:none;}
   width:540px;max-width:calc(100% - 32px);
   background:var(--bg-surface);
   border:1px solid var(--border-1);
-  border-left:4px solid var(--line-r);
+  border-left:4px solid var(--active-line);
   border-radius:var(--radius-4);
   box-shadow:var(--shadow-3);
   padding:20px 24px;z-index:50;
@@ -212,7 +215,7 @@ select{font-family:var(--font-sans);outline:none;}
 .card-code{
   font-family:var(--font-mono);font-weight:700;font-size:12px;
   padding:4px 8px;border-radius:var(--radius-1);
-  background:var(--line-r);color:#fff;letter-spacing:.04em;
+  background:var(--active-line);color:#fff;letter-spacing:.04em;
   flex-shrink:0;margin-top:3px;
 }
 .card-name-tc{font-family:var(--font-tc);font-weight:700;font-size:22px;letter-spacing:-.02em;line-height:1.1;}
@@ -245,19 +248,19 @@ select{font-family:var(--font-sans);outline:none;}
   font-variant-numeric:tabular-nums;line-height:1;
 }
 /* Both in & out use line colour — unified with red line theme */
-.kpi-mini--in  .kpi-mini__val{color:var(--line-r);}
-.kpi-mini--out .kpi-mini__val{color:var(--line-r);opacity:.6;}
+.kpi-mini--in  .kpi-mini__val{color:var(--active-line);}
+.kpi-mini--out .kpi-mini__val{color:var(--active-line);opacity:.6;}
 .card-ratio-bar{
   height:8px;display:flex;border-radius:4px;overflow:hidden;
   background:var(--border-1);margin-bottom:8px;
 }
 .card-ratio-in{
-  background:var(--line-r);height:100%;
+  background:var(--active-line);height:100%;
   border-radius:4px 0 0 4px;
   transition:width .4s cubic-bezier(.4,0,.2,1);
 }
 .card-ratio-out{
-  background:var(--line-r);opacity:.25;height:100%;
+  background:var(--active-line);opacity:.25;height:100%;
   flex:1;border-radius:0 4px 4px 0;
 }
 .card-ratio-labels{
@@ -317,8 +320,8 @@ select{font-family:var(--font-sans);outline:none;}
   font-family:var(--font-mono);font-size:21px;font-weight:600;
   font-variant-numeric:tabular-nums;line-height:1.1;
 }
-.kpi-val--in{color:var(--line-r);}
-.kpi-val--out{color:var(--line-r);}
+.kpi-val--in{color:var(--active-line);}
+.kpi-val--out{color:var(--active-line);}
 .kpi-lbl{font-size:12px;color:var(--fg-3);margin-top:4px;font-family:var(--font-tc);}
 
 /* Bar chart */
@@ -334,7 +337,7 @@ select{font-family:var(--font-sans);outline:none;}
   transition:background 100ms;
 }
 .bar-row:hover{background:var(--bg-hover);}
-.bar-row--sel{background:color-mix(in oklab,var(--line-r) 8%,transparent);}
+.bar-row--sel{background:color-mix(in oklab,var(--active-line) 8%,transparent);}
 .bar-rank{font-family:var(--font-mono);font-size:12px;color:var(--fg-3);text-align:right;}
 .bar-name{
   font-family:var(--font-tc);font-size:14px;font-weight:500;
@@ -343,12 +346,12 @@ select{font-family:var(--font-sans);outline:none;}
 .bar-track{height:6px;background:var(--border-1);border-radius:3px;overflow:hidden;position:relative;}
 .bar-fill-out{
   position:absolute;inset:0 auto 0 0;
-  background:var(--line-r);opacity:.28;border-radius:3px;
+  background:var(--active-line);opacity:.28;border-radius:3px;
   transition:width .4s cubic-bezier(.4,0,.2,1);
 }
 .bar-fill-in{
   position:absolute;inset:0 auto 0 0;
-  background:var(--line-r);opacity:.8;border-radius:3px;
+  background:var(--active-line);opacity:.8;border-radius:3px;
   transition:width .4s cubic-bezier(.4,0,.2,1);
 }
 .bar-val{
@@ -445,9 +448,51 @@ const RED_LINE = [
   { code:'R03', tc:'台北101/世貿', en:'Taipei 101/WTC',       transfers:[] },
   { code:'R02', tc:'象山',         en:'Xiangshan',            transfers:[] },
 ];
-const MAIN_LINE   = RED_LINE.filter(s => !s.isBranch);
-const BRANCH_ST   = RED_LINE.find(s => s.isBranch);
-const ALL_STATIONS = RED_LINE; // for KPIs
+const GREEN_LINE = [
+  { code:'G19', tc:'松山',       en:'Songshan',           transfers:[] },
+  { code:'G18', tc:'南京三民',   en:'Nanjing Sanmin',     transfers:[] },
+  { code:'G17', tc:'台北小巨蛋', en:'Taipei Arena',       transfers:[] },
+  { code:'G16', tc:'南京復興',   en:'Nanjing Fuxing',     transfers:['BR'] },
+  { code:'G15', tc:'松江南京',   en:'Songjiang Nanjing',  transfers:[] },
+  { code:'G14', tc:'中山',       en:'Zhongshan',          transfers:['R'] },
+  { code:'G13', tc:'北門',       en:'Beimen',             transfers:[] },
+  { code:'G12', tc:'西門',       en:'Ximen',              transfers:['BL'] },
+  { code:'G11', tc:'小南門',     en:'Xiaonanmen',         transfers:[] },
+  { code:'G10', tc:'中正紀念堂', en:'C.K.S. Memorial Hall', transfers:['R'] },
+  { code:'G09', tc:'古亭',       en:'Guting',             transfers:['O'] },
+  { code:'G08', tc:'台電大樓',   en:'Taipower Building',  transfers:[] },
+  { code:'G07', tc:'公館',       en:'Gongguan',           transfers:[] },
+  { code:'G06', tc:'萬隆',       en:'Wanlong',            transfers:[] },
+  { code:'G05', tc:'景美',       en:'Jingmei',            transfers:[] },
+  { code:'G04', tc:'大坪林',     en:'Dapinglin',          transfers:[] },
+  { code:'G03', tc:'七張',       en:'Qizhang',            transfers:[], hasBranch:true },
+  { code:'G03A',tc:'小碧潭',     en:'Xiaobitan',          transfers:[], isBranch:true },
+  { code:'G02', tc:'新店區公所', en:'Xindian City Hall',  transfers:[] },
+  { code:'G01', tc:'新店',       en:'Xindian',            transfers:[] },
+];
+
+const LINE_DEFS = {
+  R: {
+    id:'R', color:'#E3002C',
+    name:'淡水信義線', nameEn:'Tamsui–Xinyi Line',
+    dataFile:'data/mrt_redline_all.json',
+    fullLine: RED_LINE,
+    mainLine: RED_LINE.filter(s => !s.isBranch),
+    branchSt: RED_LINE.find(s => s.isBranch),
+  },
+  G: {
+    id:'G', color:'#008659',
+    name:'松山新店線', nameEn:'Songshan–Xindian Line',
+    dataFile:'data/mrt_greenline_all.json',
+    fullLine: GREEN_LINE,
+    mainLine: GREEN_LINE.filter(s => !s.isBranch),
+    branchSt: GREEN_LINE.find(s => s.isBranch),
+  },
+};
+// kept for backward compat inside components that still ref these
+let MAIN_LINE    = LINE_DEFS.R.mainLine;
+let BRANCH_ST    = LINE_DEFS.R.branchSt;
+let ALL_STATIONS = LINE_DEFS.R.fullLine;
 
 const DATA_HOURS  = [0,4,6,8,10,12,14,16,18,20,22];
 const TIME_PRESETS = [
@@ -457,7 +502,14 @@ const TIME_PRESETS = [
   { id:'evening', tc:'晚上', hours:[16,18] },
 ];
 const DAY_LABELS  = ['週日','週一','週二','週三','週四','週五','週六'];
-const PIE_COLORS  = ['#E3002C','#EB3E61','#F37088','#F9A2B0','#B61E3E','#85162F','#C2C8D2'];
+function genPieColors(hex) {
+  const [r,g,b] = [1,3,5].map(i => parseInt(hex.slice(i,i+2),16));
+  const mix = (ratio, dark) => {
+    const ch = c => dark ? Math.round(c*(1-ratio)) : Math.round(c+(255-c)*ratio);
+    return '#'+[r,g,b].map(c=>ch(c).toString(16).padStart(2,'0')).join('');
+  };
+  return [hex, mix(0.2,false), mix(0.42,false), mix(0.62,false), mix(0.18,true), mix(0.38,true), '#C2C8D2'];
+}
 
 /* ═══════════════════════════════════════════
    HELPERS
@@ -479,6 +531,7 @@ function monthPrefix(ym) { return `${ym.slice(0,4)}-${ym.slice(4,6)}`; }
 
 function aggregate(data, dateMode, selectedDate, selectedWeekday, timeMode, selectedPreset, selectedHour, selMonth) {
   if (!data) return null;
+  // Use stations currently loaded in LINE_DEFS — updated by App when line switches
   const names = ALL_STATIONS.map(s => s.tc);
   const hours = timeMode === 'preset'
     ? (TIME_PRESETS.find(p => p.id === selectedPreset)?.hours || DATA_HOURS)
@@ -525,11 +578,13 @@ const SVG_H  = 520;  // total svg height
 const MAIN_Y = 250;  // y of the main track
 const BR_LEN = 150;  // branch stub length (upward)
 
-function LinearMap({ selected, onSelect, agg }) {
+function LinearMap({ selected, onSelect, agg, lineCfg }) {
   const wrapRef = useRef();
   const dragRef = useRef({ active:false, lastX:0, moved:false });
+  const lc = lineCfg.color; // active line hex colour
 
-  const mainSts = MAIN_LINE;
+  const mainSts = lineCfg.mainLine;
+  const branchStation = lineCfg.branchSt;
   const totalW  = PAD_X * 2 + (mainSts.length - 1) * GAP;
   const beitouI = mainSts.findIndex(s => s.hasBranch);
   const beitouX = PAD_X + beitouI * GAP;
@@ -571,10 +626,10 @@ function LinearMap({ selected, onSelect, agg }) {
     wrapRef.current.scrollTo({ left: x - wrapRef.current.clientWidth/2, behavior:'smooth' });
   }, [selected]);
 
-  // Initial center on 台北車站
+  // Initial center on the middle station of the active line
   useEffect(() => {
     if (!wrapRef.current) return;
-    const i = mainSts.findIndex(s => s.code === 'R10');
+    const i = Math.floor(mainSts.length / 2);
     const x = PAD_X + i * GAP;
     setTimeout(() => {
       if (wrapRef.current) wrapRef.current.scrollLeft = x - wrapRef.current.clientWidth/2;
@@ -589,35 +644,33 @@ function LinearMap({ selected, onSelect, agg }) {
         <line
           x1={PAD_X} y1={MAIN_Y}
           x2={PAD_X+(mainSts.length-1)*GAP} y2={MAIN_Y}
-          stroke="var(--line-r)" strokeWidth={10} strokeLinecap="round"
+          stroke={lc} strokeWidth={10} strokeLinecap="round"
         />
-        {/* ── Branch stub (up from 北投) ── */}
+        {/* ── Branch stub ── */}
         {beitouI >= 0 && (
           <line
             x1={beitouX} y1={MAIN_Y} x2={beitouX} y2={MAIN_Y-BR_LEN}
-            stroke="var(--line-r)" strokeWidth={7} opacity={0.7}
+            stroke={lc} strokeWidth={7} opacity={0.7}
           />
         )}
-        {/* ── 新北投 branch station ── labels go LEFT so they don't overlap 北投 ── */}
-        {BRANCH_ST && beitouI >= 0 && (() => {
-          const flow  = agg?.byStation[BRANCH_ST.tc];
-          const total = (flow?.in||0)+(flow?.out||0);
+        {/* ── Branch station ── labels go LEFT so they don't overlap main station ── */}
+        {branchStation && beitouI >= 0 && (() => {
+          const flow  = agg?.byStation[branchStation.tc];
           const r     = 16;
-          const isSel = selected === BRANCH_ST.tc;
+          const isSel = selected === branchStation.tc;
           const bx    = beitouX, by = MAIN_Y - BR_LEN;
           return (
-            <g key="R22A" onClick={() => guardedSelect(BRANCH_ST.tc, isSel)} style={{cursor:'pointer'}}>
-              {isSel && <circle cx={bx} cy={by} r={r+18} fill="var(--line-r)" opacity={.12}/>}
+            <g key={branchStation.code} onClick={() => guardedSelect(branchStation.tc, isSel)} style={{cursor:'pointer'}}>
+              {isSel && <circle cx={bx} cy={by} r={r+18} fill={lc} opacity={.12}/>}
               <circle cx={bx} cy={by} r={r}
-                fill={isSel?"var(--line-r)":"var(--bg-surface)"}
-                stroke="var(--line-r)" strokeWidth={isSel?0:4}/>
-              {/* labels to the LEFT of the dot */}
+                fill={isSel?lc:"var(--bg-surface)"}
+                stroke={lc} strokeWidth={isSel?0:4}/>
               <text x={bx-r-16} y={by-10} textAnchor="end" fontSize={17} fontFamily="IBM Plex Mono" fontWeight="600"
-                fill={isSel?"var(--line-r)":"var(--fg-3)"}>R22A</text>
+                fill={isSel?lc:"var(--fg-3)"}>{branchStation.code}</text>
               <text x={bx-r-16} y={by+18} textAnchor="end" fontSize={24} fontFamily="Noto Sans TC" fontWeight={isSel?700:500}
-                fill={isSel?"var(--line-r)":"var(--fg-1)"}>新北投</text>
+                fill={isSel?lc:"var(--fg-1)"}>{branchStation.tc}</text>
               <text x={bx-r-16} y={by+42} textAnchor="end" fontSize={17} fontFamily="IBM Plex Sans"
-                fill={isSel?"var(--line-r)":"var(--fg-3)"}>Xinbeitou</text>
+                fill={isSel?lc:"var(--fg-3)"}>{branchStation.en}</text>
             </g>
           );
         })()}
@@ -646,14 +699,14 @@ function LinearMap({ selected, onSelect, agg }) {
           return (
             <g key={s.code} onClick={() => guardedSelect(s.tc, isSel)} style={{cursor:'pointer'}}>
               {/* Selected halo */}
-              {isSel && <circle cx={x} cy={MAIN_Y} r={r+16} fill="var(--line-r)" opacity={.10}/>}
+              {isSel && <circle cx={x} cy={MAIN_Y} r={r+16} fill={lc} opacity={.10}/>}
               {/* Tick */}
               <line x1={x} y1={tk1} x2={x} y2={tk2} stroke="var(--border-2)" strokeWidth={2.5}/>
               {/* Station dot — uniform size */}
               <circle
                 cx={x} cy={MAIN_Y} r={r}
-                fill={isSel?"var(--line-r)":"var(--bg-surface)"}
-                stroke="var(--line-r)"
+                fill={isSel?lc:"var(--bg-surface)"}
+                stroke={lc}
                 strokeWidth={isSel?0:4}
               />
               {/* Transfer rectangles — below TC name */}
@@ -669,30 +722,30 @@ function LinearMap({ selected, onSelect, agg }) {
                   />
                 );
               })}
-              {/* TC name (closest to tick) — 2× font */}
+              {/* TC name */}
               <text x={x} y={lbY} textAnchor="middle"
                 fontSize={24} fontFamily="Noto Sans TC" fontWeight={isSel?700:500}
-                fill={isSel?"var(--line-r)":"var(--fg-1)"}
+                fill={isSel?lc:"var(--fg-1)"}
               >{s.tc}</text>
-              {/* EN name — 2× font */}
+              {/* EN name */}
               <text x={x} y={enY} textAnchor="middle"
                 fontSize={17} fontFamily="IBM Plex Sans"
-                fill={isSel?"var(--line-r)":"var(--fg-3)"}
+                fill={isSel?lc:"var(--fg-3)"}
               >{s.en}</text>
-              {/* Station code (outermost) — 2× font */}
+              {/* Station code */}
               <text x={x} y={codeY} textAnchor="middle"
                 fontSize={17} fontFamily="IBM Plex Mono" fontWeight="600"
-                fill={isSel?"var(--line-r)":"var(--fg-3)"} letterSpacing=".04em"
+                fill={isSel?lc:"var(--fg-3)"} letterSpacing=".04em"
               >{s.code}</text>
             </g>
           );
         })}
 
-        {/* Endpoint markers — 2× font */}
+        {/* Endpoint markers */}
         <text x={PAD_X-20} y={MAIN_Y+6} textAnchor="end"
-          fontSize={20} fontFamily="IBM Plex Mono" fontWeight="700" fill="var(--line-r)">R28 ←</text>
+          fontSize={20} fontFamily="IBM Plex Mono" fontWeight="700" fill={lc}>{mainSts[0].code} ←</text>
         <text x={PAD_X+(mainSts.length-1)*GAP+20} y={MAIN_Y+6} textAnchor="start"
-          fontSize={20} fontFamily="IBM Plex Mono" fontWeight="700" fill="var(--line-r)">→ R02</text>
+          fontSize={20} fontFamily="IBM Plex Mono" fontWeight="700" fill={lc}>→ {mainSts[mainSts.length-1].code}</text>
       </svg>
     </div>
   );
@@ -700,7 +753,7 @@ function LinearMap({ selected, onSelect, agg }) {
 
 /* Station detail card */
 function StationCard({ stationName, agg, onClose }) {
-  const s    = RED_LINE.find(x => x.tc === stationName);
+  const s    = ALL_STATIONS.find(x => x.tc === stationName);
   const flow = agg?.byStation[stationName] || { in:0, out:0 };
   const tot  = flow.in + flow.out;
   const inPct = tot ? Math.round(flow.in/tot*100) : 50;
@@ -947,8 +1000,9 @@ function BarChart({ agg, selected, onSelect }) {
 /* ═══════════════════════════════════════════
    SIDE PANEL: PIE CHART
 ═══════════════════════════════════════════ */
-function PieChart({ agg }) {
+function PieChart({ agg, lineColor }) {
   if (!agg) return null;
+  const PIE_COLORS = genPieColors(lineColor || '#E3002C');
   const sorted = [...MAIN_LINE, BRANCH_ST]
     .map(s => ({ name:s.tc, total:(agg.byStation[s.tc]?.in||0)+(agg.byStation[s.tc]?.out||0) }))
     .sort((a,b) => b.total-a.total);
@@ -996,7 +1050,8 @@ function PieChart({ agg }) {
 ═══════════════════════════════════════════ */
 function TopBar({ data, dateMode, setDateMode, selDate, setSelDate, selWd, setSelWd,
                   timeMode, setTimeMode, selPreset, setSelPreset, selHour, setSelHour,
-                  selMonth, setSelMonth, isDark, onToggleDark }) {
+                  selMonth, setSelMonth, activeLineId, setActiveLineId, lineCfg,
+                  isDark, onToggleDark }) {
   const allDates = data ? Object.keys(data.daily).sort() : [];
   const dates = selMonth
     ? allDates.filter(d => d.startsWith(monthPrefix(selMonth)))
@@ -1010,8 +1065,8 @@ function TopBar({ data, dateMode, setDateMode, selDate, setSelDate, selWd, setSe
       {/* Brand */}
       <div className="topbar__brand">
         <div className="topbar__title">
-          <span className="topbar__badge">R</span>
-          台北捷運 · 淡水信義線
+          <span className="topbar__badge">{activeLineId}</span>
+          台北捷運 · {lineCfg.name}
         </div>
         <div className="topbar__sub">人流監測 · Passenger Monitor</div>
         <div className="topbar__sub">{rangeLabel}</div>
@@ -1085,10 +1140,15 @@ function TopBar({ data, dateMode, setDateMode, selDate, setSelDate, selWd, setSe
         </div>
       </div>
 
-      {/* Line legend + theme toggle */}
+      {/* Line selector + theme toggle */}
       <div className="topbar__legend">
-        {[{id:'BR',n:'文湖'},{id:'R',n:'淡水信義'},{id:'G',n:'松山新店'},{id:'O',n:'中和新蘆'},{id:'BL',n:'板南'}].map(l => (
-          <div key={l.id} className={`line-chip line-chip--${l.id} ${l.id==='R'?'line-chip--on':''}`} title={`${l.n}線`}>
+        {[{id:'BR',n:'文湖',clickable:false},{id:'R',n:'淡水信義',clickable:true},{id:'G',n:'松山新店',clickable:true},{id:'O',n:'中和新蘆',clickable:false},{id:'BL',n:'板南',clickable:false}].map(l => (
+          <div key={l.id}
+            className={`line-chip line-chip--${l.id} ${activeLineId===l.id?'line-chip--on':''}`}
+            title={l.clickable ? `切換至${l.n}線` : `${l.n}線（即將推出）`}
+            onClick={() => l.clickable && setActiveLineId(l.id)}
+            style={{cursor: l.clickable ? 'pointer' : 'default'}}
+          >
             <span className="line-chip__dot"/>
             <span>{l.id}</span>
           </div>
@@ -1120,6 +1180,7 @@ function App() {
   const [selStation, setSelStation] = useState(null);
   const [mapTab,     setMapTab]     = useState('linear');
   const [selMonth,   setSelMonth]   = useState(null);
+  const [activeLineId, setActiveLineId] = useState('R');
   const [isDark,     setIsDark]     = useState(
     () => document.documentElement.getAttribute('data-theme') === 'dark'
   );
@@ -1132,12 +1193,21 @@ function App() {
     });
   }, []);
 
+  // Reload data whenever the active line changes
   useEffect(() => {
-    fetch('data/mrt_redline_all.json')
+    const lineDef = LINE_DEFS[activeLineId];
+    // Sync globals used by aggregate / BarChart / PieChart
+    ALL_STATIONS = lineDef.fullLine;
+    MAIN_LINE    = lineDef.mainLine;
+    BRANCH_ST    = lineDef.branchSt;
+    document.documentElement.style.setProperty('--active-line', lineDef.color);
+    setLoading(true);
+    setData(null);
+    setSelStation(null);
+    fetch(lineDef.dataFile)
       .then(r => r.json())
       .then(d => {
         setData(d);
-        // Default to latest month
         const latest = d.months?.[d.months.length - 1];
         if (latest) {
           setSelMonth(latest);
@@ -1152,7 +1222,9 @@ function App() {
         console.error('Data load failed:', err);
         setLoading(false);
       });
-  }, []);
+  }, [activeLineId]);
+
+  const lineCfg = LINE_DEFS[activeLineId];
 
   const agg = useMemo(() =>
     aggregate(data, dateMode, selDate, selWd, timeMode, selPreset, selHour, selMonth),
@@ -1179,6 +1251,8 @@ function App() {
         selPreset={selPreset} setSelPreset={setSelPreset}
         selHour={selHour}   setSelHour={setSelHour}
         selMonth={selMonth} setSelMonth={setSelMonth}
+        activeLineId={activeLineId} setActiveLineId={setActiveLineId}
+        lineCfg={lineCfg}
         isDark={isDark}     onToggleDark={toggleDark}
       />
       <div className="body">
@@ -1197,6 +1271,7 @@ function App() {
                   selected={selStation}
                   onSelect={setSelStation}
                   agg={agg}
+                  lineCfg={lineCfg}
                 />
                 {selStation && (
                   <StationCard
@@ -1246,7 +1321,7 @@ function App() {
           {/* Pie chart */}
           <div className="side-sec--last">
             <div className="sec-eyebrow">主要車站佔比 · Top Station Share</div>
-            <PieChart agg={agg}/>
+            <PieChart agg={agg} lineColor={lineCfg.color}/>
           </div>
         </aside>
       </div>
