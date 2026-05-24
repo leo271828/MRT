@@ -14,7 +14,7 @@
 ════════════════════════════════════════════ */
 :root {
   --line-br:#7A4520; --line-r:#E3002C; --line-g:#008659;
-  --line-o:#F8B61C;  --line-bl:#0070BD; --line-y:#E5C100;
+  --line-o:#F8B61C;  --line-bl:#0070BD; --line-y:#E3A800;
   --line-r-tint:#FBD9DF;
 
   --ink-0:#FFFFFF;  --ink-50:#F6F7F9;  --ink-100:#ECEEF2;
@@ -153,10 +153,13 @@ select{font-family:var(--font-sans);outline:none;}
 .line-chip--G  .line-chip__dot{background:var(--line-g);}
 .line-chip--O  .line-chip__dot{background:var(--line-o);}
 .line-chip--BL .line-chip__dot{background:var(--line-bl);}
+.line-chip--Y  .line-chip__dot{background:var(--line-y);}
 .line-chip--R.line-chip--on{color:var(--line-r);border-color:var(--line-r);background:color-mix(in oklab,var(--line-r) 8%,transparent);}
 .line-chip--G.line-chip--on{color:var(--line-g);border-color:var(--line-g);background:color-mix(in oklab,var(--line-g) 8%,transparent);}
 .line-chip--BL.line-chip--on{color:var(--line-bl);border-color:var(--line-bl);background:color-mix(in oklab,var(--line-bl) 8%,transparent);}
 .line-chip--BR.line-chip--on{color:var(--line-br);border-color:var(--line-br);background:color-mix(in oklab,var(--line-br) 8%,transparent);}
+.line-chip--Y.line-chip--on{color:var(--line-y);border-color:var(--line-y);background:color-mix(in oklab,var(--line-y) 8%,transparent);}
+.line-chip--O.line-chip--on{color:var(--line-o);border-color:var(--line-o);background:color-mix(in oklab,var(--line-o) 8%,transparent);}
 
 /* ════════════════════════════════════════════
    MAP PANEL
@@ -418,7 +421,7 @@ const { useState, useEffect, useRef, useCallback, useMemo } = React;
 /* ═══════════════════════════════════════════
    CONSTANTS
 ═══════════════════════════════════════════ */
-const LINE_COLORS = { BR:'#7A4520',R:'#E3002C',G:'#008659',O:'#F8B61C',BL:'#0070BD',Y:'#E5C100' };
+const LINE_COLORS = { BR:'#7A4520',R:'#E3002C',G:'#008659',O:'#F8B61C',BL:'#0070BD',Y:'#E3A800' };
 
 const RED_LINE = [
   { code:'R28', tc:'淡水',         en:'Tamsui',               transfers:[] },
@@ -526,6 +529,59 @@ const BR_LINE = [
   { code:'BR24', tc:'南港展覽館', en:'Nangang Exhibition Center',    transfers:['BL'] },
 ];
 
+const Y_LINE = [
+  // 北段 Y01–Y14（Y05–Y09、Y10–Y12、Y14 屬 O 線已移除）
+  { code:'Y01', tc:'新北產業園區', en:'New Taipei Industrial Park',  transfers:[] },
+  { code:'Y02', tc:'幸福',         en:'Xinfu',                       transfers:[] },
+  { code:'Y03', tc:'新埔民生',     en:'Xinpu Minsheng',              transfers:[] },
+  { code:'Y04', tc:'頭前庄',       en:'Touqianzhuang',               transfers:['O'] },
+  { code:'Y06', tc:'三民高中',     en:'Sanmin Senior High School',   transfers:[] },
+  { code:'Y13', tc:'中原',         en:'Zhongyuan',                   transfers:[] },
+  // 南段 Y19–Y26
+  { code:'Y19', tc:'大坪林',       en:'Dapinglin',                   transfers:['G'] },
+  { code:'Y20', tc:'十四張',       en:'Shisichang',                  transfers:[] },
+  { code:'Y21', tc:'秀朗橋',       en:'Xiulangqiao',                 transfers:[] },
+  { code:'Y22', tc:'橋和',         en:'Qiaohe',                      transfers:[] },
+  { code:'Y23', tc:'中和',         en:'Zhonghe',                     transfers:[] },
+  { code:'Y24', tc:'景安',         en:'Jingan',                      transfers:['O'] },
+  { code:'Y25', tc:'板橋',         en:'Banqiao',                     transfers:['BL'] },
+  { code:'Y26', tc:'板新',         en:'Banxin',                      transfers:[] },
+];
+
+const O_LINE = [
+  // 主線 O01–O14（南勢角 → 大橋頭站）
+  { code:'O01', tc:'南勢角',     en:'Nanshijiao',              transfers:[] },
+  { code:'O02', tc:'景安',       en:'Jingan',                  transfers:['Y'] },
+  { code:'O03', tc:'永安市場',   en:"Yong'an Market",          transfers:[] },
+  { code:'O04', tc:'頂溪',       en:'Dingxi',                  transfers:[] },
+  { code:'O05', tc:'古亭',       en:'Guting',                  transfers:['G'] },
+  { code:'O06', tc:'中正紀念堂', en:'C.K.S. Memorial Hall',    transfers:['G'] },
+  { code:'O07', tc:'小南門',     en:'Xiaonanmen',              transfers:[] },
+  { code:'O08', tc:'西門',       en:'Ximen',                   transfers:['BL'] },
+  { code:'O09', tc:'北門',       en:'Beimen',                  transfers:[] },
+  { code:'O10', tc:'中山',       en:'Zhongshan',               transfers:['R'] },
+  { code:'O11', tc:'行天宮',     en:'Xingtian Temple',         transfers:[] },
+  { code:'O12', tc:'松江南京',   en:'Songjiang Nanjing',       transfers:[] },
+  { code:'O13', tc:'南京三民',   en:'Nanjing Sanmin',          transfers:[] },
+  { code:'O14', tc:'台北小巨蛋', en:'Taipei Arena',            transfers:[] },
+  { code:'O15', tc:'大橋頭站',   en:'Daqiaotou',               transfers:[], hasBranch:true },
+  // 蘆洲支線 O31–O34（從大橋頭站分支）
+  { code:'O31', tc:'三和國中',   en:'Sanhe Junior High School',transfers:[], isBranch:true },
+  { code:'O32', tc:'三重國小',   en:'Sanchong Elementary',     transfers:[], isBranch:true },
+  { code:'O33', tc:'徐匯中學',   en:'Xu-Hui Middle School',    transfers:[], isBranch:true },
+  { code:'O34', tc:'蘆洲',       en:'Luzhou',                  transfers:[], isBranch:true },
+  // 主線繼續 O16–O24（大橋頭站 → 迴龍）
+  { code:'O16', tc:'台北橋',     en:'Taipei Bridge',           transfers:[] },
+  { code:'O17', tc:'菜寮',       en:'Cailiao',                 transfers:[] },
+  { code:'O18', tc:'三重',       en:'Sanchong',                transfers:[] },
+  { code:'O19', tc:'先嗇宮',     en:'Xiansegong',              transfers:[] },
+  { code:'O20', tc:'頭前庄',     en:'Touqianzhuang',           transfers:['Y'] },
+  { code:'O21', tc:'新莊',       en:'Xinzhuang',               transfers:[] },
+  { code:'O22', tc:'輔大',       en:'Fu Jen University',       transfers:[] },
+  { code:'O23', tc:'丹鳳',       en:'Danfeng',                 transfers:[] },
+  { code:'O24', tc:'迴龍',       en:'Huilong',                 transfers:[] },
+];
+
 const LINE_DEFS = {
   R: {
     id:'R', color:'#E3002C',
@@ -558,6 +614,22 @@ const LINE_DEFS = {
     fullLine: BR_LINE,
     mainLine: BR_LINE,
     branchSt: undefined,
+  },
+  Y: {
+    id:'Y', color:'#E3A800',
+    name:'環狀線', nameEn:'Circular Line',
+    dataFile:'data/mrt_yline_all.json',
+    fullLine: Y_LINE,
+    mainLine: Y_LINE,
+    branchSt: undefined,
+  },
+  O: {
+    id:'O', color:'#F8B61C',
+    name:'中和新蘆線', nameEn:'Zhonghe–Xinlu Line',
+    dataFile:'data/mrt_oline_all.json',
+    fullLine: O_LINE,
+    mainLine: O_LINE.filter(s => !s.isBranch),
+    branchSt: O_LINE.find(s => s.isBranch),
   },
 };
 // kept for backward compat inside components that still ref these
@@ -1213,7 +1285,7 @@ function TopBar({ data, dateMode, setDateMode, selDate, setSelDate, selWd, setSe
 
       {/* Line selector + theme toggle */}
       <div className="topbar__legend">
-        {[{id:'BR',n:'文湖',clickable:true},{id:'R',n:'淡水信義',clickable:true},{id:'G',n:'松山新店',clickable:true},{id:'O',n:'中和新蘆',clickable:false},{id:'BL',n:'板南',clickable:true}].map(l => (
+        {[{id:'BR',n:'文湖',clickable:true},{id:'R',n:'淡水信義',clickable:true},{id:'G',n:'松山新店',clickable:true},{id:'O',n:'中和新蘆',clickable:true},{id:'BL',n:'板南',clickable:true}].map(l => (
           <div key={l.id}
             className={`line-chip line-chip--${l.id} ${activeLineId===l.id?'line-chip--on':''}`}
             title={l.clickable ? `切換至${l.n}線` : `${l.n}線（即將推出）`}
