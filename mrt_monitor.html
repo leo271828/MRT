@@ -155,6 +155,7 @@ select{font-family:var(--font-sans);outline:none;}
 .line-chip--BL .line-chip__dot{background:var(--line-bl);}
 .line-chip--R.line-chip--on{color:var(--line-r);border-color:var(--line-r);background:color-mix(in oklab,var(--line-r) 8%,transparent);}
 .line-chip--G.line-chip--on{color:var(--line-g);border-color:var(--line-g);background:color-mix(in oklab,var(--line-g) 8%,transparent);}
+.line-chip--BL.line-chip--on{color:var(--line-bl);border-color:var(--line-bl);background:color-mix(in oklab,var(--line-bl) 8%,transparent);}
 
 /* ════════════════════════════════════════════
    MAP PANEL
@@ -471,6 +472,32 @@ const GREEN_LINE = [
   { code:'G01', tc:'新店',       en:'Xindian',            transfers:[] },
 ];
 
+const BLUE_LINE = [
+  { code:'BL23', tc:'南港展覽館', en:'Nangang Exhibition Center', transfers:[] },
+  { code:'BL22', tc:'南港',       en:'Nangang',                   transfers:[] },
+  { code:'BL21', tc:'昆陽',       en:'Kunyang',                   transfers:[] },
+  { code:'BL20', tc:'後山埤',     en:'Houshanpi',                 transfers:[] },
+  { code:'BL19', tc:'永春',       en:'Yongchun',                  transfers:[] },
+  { code:'BL18', tc:'市政府',     en:'City Hall',                 transfers:[] },
+  { code:'BL17', tc:'國父紀念館', en:'Sun Yat-sen Memorial Hall', transfers:[] },
+  { code:'BL16', tc:'忠孝敦化',   en:'Zhongxiao Dunhua',          transfers:[] },
+  { code:'BL15', tc:'忠孝復興',   en:'Zhongxiao Fuxing',          transfers:['BR'] },
+  { code:'BL14', tc:'忠孝新生',   en:'Zhongxiao Xinsheng',        transfers:[] },
+  { code:'BL13', tc:'善導寺',     en:'Shandao Temple',            transfers:[] },
+  { code:'BL12', tc:'台北車站',   en:'Taipei Main Station',       transfers:['R'] },
+  { code:'BL11', tc:'西門',       en:'Ximen',                     transfers:['G'] },
+  { code:'BL10', tc:'龍山寺',     en:'Longshan Temple',           transfers:[] },
+  { code:'BL09', tc:'江子翠',     en:'Jiangzicui',                transfers:[] },
+  { code:'BL08', tc:'新埔',       en:'Xinpu',                     transfers:[] },
+  { code:'BL07', tc:'板橋',       en:'Banqiao',                   transfers:[] },
+  { code:'BL06', tc:'府中',       en:'Fuzhong',                   transfers:[] },
+  { code:'BL05', tc:'亞東醫院',   en:'Far Eastern Hospital',      transfers:[] },
+  { code:'BL04', tc:'海山',       en:'Haishan',                   transfers:[] },
+  { code:'BL03', tc:'土城',       en:'Tucheng',                   transfers:[] },
+  { code:'BL02', tc:'永寧',       en:'Yongning',                  transfers:[] },
+  { code:'BL01', tc:'頂埔',       en:'Dingpu',                    transfers:[] },
+];
+
 const LINE_DEFS = {
   R: {
     id:'R', color:'#E3002C',
@@ -487,6 +514,14 @@ const LINE_DEFS = {
     fullLine: GREEN_LINE,
     mainLine: GREEN_LINE.filter(s => !s.isBranch),
     branchSt: GREEN_LINE.find(s => s.isBranch),
+  },
+  BL: {
+    id:'BL', color:'#0070BD',
+    name:'板南線', nameEn:'Bannan Line',
+    dataFile:'data/mrt_blueline_all.json',
+    fullLine: BLUE_LINE,
+    mainLine: BLUE_LINE,
+    branchSt: undefined,
   },
 };
 // kept for backward compat inside components that still ref these
@@ -974,7 +1009,7 @@ function NetworkMap({ agg, selected, onSelect }) {
 ═══════════════════════════════════════════ */
 function BarChart({ agg, selected, onSelect }) {
   if (!agg) return <div style={{color:'var(--fg-3)',fontSize:12,padding:'8px 0'}}>載入中…</div>;
-  const sorted = [...MAIN_LINE, BRANCH_ST]
+  const sorted = [...MAIN_LINE, ...(BRANCH_ST ? [BRANCH_ST] : [])]
     .map(s => ({ ...s, ...agg.byStation[s.tc], total:(agg.byStation[s.tc]?.in||0)+(agg.byStation[s.tc]?.out||0) }))
     .sort((a,b) => b.total-a.total);
   const maxTot = sorted[0]?.total || 1;
@@ -1003,7 +1038,7 @@ function BarChart({ agg, selected, onSelect }) {
 function PieChart({ agg, lineColor }) {
   if (!agg) return null;
   const PIE_COLORS = genPieColors(lineColor || '#E3002C');
-  const sorted = [...MAIN_LINE, BRANCH_ST]
+  const sorted = [...MAIN_LINE, ...(BRANCH_ST ? [BRANCH_ST] : [])]
     .map(s => ({ name:s.tc, total:(agg.byStation[s.tc]?.in||0)+(agg.byStation[s.tc]?.out||0) }))
     .sort((a,b) => b.total-a.total);
   const top6    = sorted.slice(0,6);
@@ -1142,7 +1177,7 @@ function TopBar({ data, dateMode, setDateMode, selDate, setSelDate, selWd, setSe
 
       {/* Line selector + theme toggle */}
       <div className="topbar__legend">
-        {[{id:'BR',n:'文湖',clickable:false},{id:'R',n:'淡水信義',clickable:true},{id:'G',n:'松山新店',clickable:true},{id:'O',n:'中和新蘆',clickable:false},{id:'BL',n:'板南',clickable:false}].map(l => (
+        {[{id:'BR',n:'文湖',clickable:false},{id:'R',n:'淡水信義',clickable:true},{id:'G',n:'松山新店',clickable:true},{id:'O',n:'中和新蘆',clickable:false},{id:'BL',n:'板南',clickable:true}].map(l => (
           <div key={l.id}
             className={`line-chip line-chip--${l.id} ${activeLineId===l.id?'line-chip--on':''}`}
             title={l.clickable ? `切換至${l.n}線` : `${l.n}線（即將推出）`}
