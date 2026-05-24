@@ -14,7 +14,7 @@
 ════════════════════════════════════════════ */
 :root {
   --line-br:#7A4520; --line-r:#E3002C; --line-g:#008659;
-  --line-o:#F8B61C;  --line-bl:#0070BD; --line-y:#E3A800;
+  --line-o:#F5A300;  --line-bl:#0070BD; --line-y:#E3A800;
   --line-r-tint:#FBD9DF;
 
   --ink-0:#FFFFFF;  --ink-50:#F6F7F9;  --ink-100:#ECEEF2;
@@ -194,6 +194,7 @@ select{font-family:var(--font-sans);outline:none;}
 .linear-wrap::-webkit-scrollbar{height:4px;}
 .linear-wrap::-webkit-scrollbar-track{background:transparent;}
 .linear-wrap::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:2px;}
+.linear-wrap--fork{overflow-y:auto;}
 
 /* Station detail card */
 .station-card{
@@ -414,6 +415,7 @@ select{font-family:var(--font-sans);outline:none;}
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="map_config.js"></script>
 
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
@@ -421,7 +423,7 @@ const { useState, useEffect, useRef, useCallback, useMemo } = React;
 /* ═══════════════════════════════════════════
    CONSTANTS
 ═══════════════════════════════════════════ */
-const LINE_COLORS = { BR:'#7A4520',R:'#E3002C',G:'#008659',O:'#F8B61C',BL:'#0070BD',Y:'#E3A800' };
+const LINE_COLORS = { BR:'#7A4520',R:'#E3002C',G:'#008659',O:'#F5A300',BL:'#0070BD',Y:'#E3A800' };
 
 const RED_LINE = [
   { code:'R28', tc:'淡水',         en:'Tamsui',               transfers:[] },
@@ -624,12 +626,16 @@ const LINE_DEFS = {
     branchSt: undefined,
   },
   O: {
-    id:'O', color:'#F8B61C',
+    id:'O', color:'#F5A300',
     name:'中和新蘆線', nameEn:'Zhonghe–Xinlu Line',
     dataFile:'data/mrt_oline_all.json',
     fullLine: O_LINE,
     mainLine: O_LINE.filter(s => !s.isBranch),
     branchSt: O_LINE.find(s => s.isBranch),
+    hasFork: true,
+    trunkLine: (() => { const fi = O_LINE.findIndex(s => s.hasBranch); return O_LINE.slice(0, fi+1); })(),
+    lowerArm:  O_LINE.filter(s => s.isBranch),
+    upperArm:  (() => { const fi = O_LINE.findIndex(s => s.hasBranch); const bl = O_LINE.filter(s=>s.isBranch).length; return O_LINE.slice(fi+1+bl); })(),
   },
 };
 // kept for backward compat inside components that still ref these
@@ -715,11 +721,11 @@ function aggregate(data, dateMode, selectedDate, selectedWeekday, timeMode, sele
 /* ═══════════════════════════════════════════
    LINEAR MAP
 ═══════════════════════════════════════════ */
-const GAP    = 160;  // px between station centers
-const PAD_X  = 220;  // horizontal padding
-const SVG_H  = 520;  // total svg height
-const MAIN_Y = 250;  // y of the main track
-const BR_LEN = 150;  // branch stub length (upward)
+const GAP    = MAP_GAP;
+const PAD_X  = MAP_PAD_X;
+const SVG_H  = LINEAR_SVG_H;
+const MAIN_Y = LINEAR_MAIN_Y;
+const BR_LEN = LINEAR_BR_LEN;
 
 function LinearMap({ selected, onSelect, agg, lineCfg }) {
   const wrapRef = useRef();
@@ -799,7 +805,7 @@ function LinearMap({ selected, onSelect, agg, lineCfg }) {
         {/* ── Branch station ── labels go LEFT so they don't overlap main station ── */}
         {branchStation && beitouI >= 0 && (() => {
           const flow  = agg?.byStation[branchStation.tc];
-          const r     = 16;
+          const r     = LINEAR_DOT_R;
           const isSel = selected === branchStation.tc;
           const bx    = beitouX, by = MAIN_Y - BR_LEN;
           return (
@@ -827,10 +833,8 @@ function LinearMap({ selected, onSelect, agg, lineCfg }) {
           const isXfer = (s.transfers?.length || 0) > 0;
           const flow   = agg?.byStation[s.tc];
           const total  = (flow?.in||0)+(flow?.out||0);
-          // Uniform dot radius for all stations
-          const r      = 16;
-
-          const TICK_END = 76;
+          const r      = LINEAR_DOT_R;
+          const TICK_END = LINEAR_TICK;
           const tk1 = MAIN_Y + r;
           const tk2 = MAIN_Y + TICK_END;
           // Labels below track: TC → [transfer rects] → EN → code
@@ -889,6 +893,127 @@ function LinearMap({ selected, onSelect, agg, lineCfg }) {
           fontSize={20} fontFamily="IBM Plex Mono" fontWeight="700" fill={lc}>{mainSts[0].code} ←</text>
         <text x={PAD_X+(mainSts.length-1)*GAP+20} y={MAIN_Y+6} textAnchor="start"
           fontSize={20} fontFamily="IBM Plex Mono" fontWeight="700" fill={lc}>→ {mainSts[mainSts.length-1].code}</text>
+      </svg>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   FORK MAP  (Y-fork, e.g. 中和新蘆線)
+═══════════════════════════════════════════ */
+/* FORK layout constants are loaded from map_config.js */
+
+function ForkMap({ selected, onSelect, agg, lineCfg }) {
+  const wrapRef = useRef();
+  const dragRef = useRef({ active:false, lastX:0, moved:false });
+  const lc = lineCfg.color;
+
+  const trunkSts = lineCfg.trunkLine;
+  const upperSts = lineCfg.upperArm;
+  const lowerSts = lineCfg.lowerArm;
+
+  const forkX    = PAD_X + (trunkSts.length - 1) * GAP;
+  const armStart = forkX + GAP;
+  const totalW   = armStart + (Math.max(upperSts.length, lowerSts.length) - 1) * GAP + PAD_X;
+
+  const onMD = useCallback(e => {
+    dragRef.current = { active:true, lastX:e.clientX, moved:false };
+    wrapRef.current.classList.add('dragging');
+    e.preventDefault();
+  }, []);
+  const onMM = useCallback(e => {
+    if (!dragRef.current.active || !wrapRef.current) return;
+    const dx = e.clientX - dragRef.current.lastX;
+    dragRef.current.lastX = e.clientX;
+    if (Math.abs(dx) > 2) dragRef.current.moved = true;
+    wrapRef.current.scrollLeft -= dx;
+  }, []);
+  const onMU = useCallback(() => {
+    dragRef.current.active = false;
+    wrapRef.current?.classList.remove('dragging');
+  }, []);
+  const guardedSelect = useCallback((name, isSel) => {
+    if (dragRef.current.moved) return;
+    onSelect(isSel ? null : name);
+  }, [onSelect]);
+
+  useEffect(() => {
+    if (!selected || !wrapRef.current) return;
+    const ti = trunkSts.findIndex(s => s.tc === selected);
+    if (ti >= 0) { wrapRef.current.scrollTo({ left: PAD_X + ti*GAP - wrapRef.current.clientWidth/2, behavior:'smooth' }); return; }
+    const ui = upperSts.findIndex(s => s.tc === selected);
+    if (ui >= 0) { wrapRef.current.scrollTo({ left: armStart + ui*GAP - wrapRef.current.clientWidth/2, behavior:'smooth' }); return; }
+    const li = lowerSts.findIndex(s => s.tc === selected);
+    if (li >= 0) { wrapRef.current.scrollTo({ left: armStart + li*GAP - wrapRef.current.clientWidth/2, behavior:'smooth' }); }
+  }, [selected]);
+
+  useEffect(() => {
+    if (!wrapRef.current) return;
+    const x = PAD_X + Math.floor(trunkSts.length / 2) * GAP;
+    setTimeout(() => { if (wrapRef.current) wrapRef.current.scrollLeft = x - wrapRef.current.clientWidth/2; }, 80);
+  }, []);
+
+  function renderSt(s, x, y, above) {
+    const r = FORK_DOT_R, isSel = selected === s.tc, isXfer = (s.transfers?.length||0) > 0;
+    const tcY   = above ? y - FORK_TICK - 8  : y + FORK_TICK + 32;
+    const enY   = above ? y - FORK_TICK - 44 : y + FORK_TICK + 68;
+    const codeY = above ? y - FORK_TICK - 66 : y + FORK_TICK + 90;
+    const rectCY = above ? codeY - 20 : codeY + 20;
+    return (
+      <g key={s.code} onClick={() => guardedSelect(s.tc, isSel)} style={{cursor:'pointer'}}>
+        {isSel && <circle cx={x} cy={y} r={r+16} fill={lc} opacity={.10}/>}
+        <line x1={x} y1={above ? y-r : y+r} x2={x} y2={above ? y-FORK_TICK : y+FORK_TICK}
+          stroke="var(--border-2)" strokeWidth={2.5}/>
+        <circle cx={x} cy={y} r={r}
+          fill={isSel ? lc : "var(--bg-surface)"}
+          stroke={lc} strokeWidth={isSel ? 0 : 4}/>
+        {isXfer && s.transfers.map((t, ti) => {
+          const n = s.transfers.length, rw = 24, rh = 12, ox = (ti-(n-1)/2)*28;
+          return <rect key={t} x={x+ox-rw/2} y={rectCY-rh/2} width={rw} height={rh} rx={3}
+            fill={LINE_COLORS[t]||'#888'}/>;
+        })}
+        <text x={x} y={tcY} textAnchor="middle" fontSize={24} fontFamily="Noto Sans TC"
+          fontWeight={isSel?700:500} fill={isSel?lc:"var(--fg-1)"}>{s.tc}</text>
+        <text x={x} y={enY} textAnchor="middle" fontSize={17} fontFamily="IBM Plex Sans"
+          fill={isSel?lc:"var(--fg-3)"}>{s.en}</text>
+        <text x={x} y={codeY} textAnchor="middle" fontSize={17} fontFamily="IBM Plex Mono"
+          fontWeight="600" fill={isSel?lc:"var(--fg-3)"} letterSpacing=".04em">{s.code}</text>
+      </g>
+    );
+  }
+
+  return (
+    <div className="linear-wrap linear-wrap--fork" ref={wrapRef}
+      onMouseDown={onMD} onMouseMove={onMM} onMouseUp={onMU} onMouseLeave={onMU}>
+      <svg width={totalW} height={FORK_SVG_H} style={{display:'block'}}>
+        {/* ── Trunk track ── */}
+        <line x1={PAD_X} y1={FORK_TRUNK_Y} x2={forkX} y2={FORK_TRUNK_Y}
+          stroke={lc} strokeWidth={10} strokeLinecap="round"/>
+        {/* ── Upper diagonal ── */}
+        <line x1={forkX} y1={FORK_TRUNK_Y} x2={armStart} y2={FORK_UPPER_Y}
+          stroke={lc} strokeWidth={9} strokeLinecap="round"/>
+        {/* ── Upper arm horizontal ── */}
+        <line x1={armStart} y1={FORK_UPPER_Y} x2={armStart+(upperSts.length-1)*GAP} y2={FORK_UPPER_Y}
+          stroke={lc} strokeWidth={10} strokeLinecap="round"/>
+        {/* ── Lower diagonal ── */}
+        <line x1={forkX} y1={FORK_TRUNK_Y} x2={armStart} y2={FORK_LOWER_Y}
+          stroke={lc} strokeWidth={9} strokeLinecap="round"/>
+        {/* ── Lower arm horizontal ── */}
+        <line x1={armStart} y1={FORK_LOWER_Y} x2={armStart+(lowerSts.length-1)*GAP} y2={FORK_LOWER_Y}
+          stroke={lc} strokeWidth={10} strokeLinecap="round"/>
+        {/* ── Trunk stations ── */}
+        {trunkSts.map((s, i) => renderSt(s, PAD_X + i*GAP, FORK_TRUNK_Y, false))}
+        {/* ── Upper arm stations (labels above) ── */}
+        {upperSts.map((s, i) => renderSt(s, armStart + i*GAP, FORK_UPPER_Y, true))}
+        {/* ── Lower arm stations (labels below) ── */}
+        {lowerSts.map((s, i) => renderSt(s, armStart + i*GAP, FORK_LOWER_Y, false))}
+        {/* ── Endpoint markers ── */}
+        <text x={PAD_X-20} y={FORK_TRUNK_Y+6} textAnchor="end"
+          fontSize={20} fontFamily="IBM Plex Mono" fontWeight="700" fill={lc}>{trunkSts[0].code} ←</text>
+        <text x={armStart+(upperSts.length-1)*GAP+20} y={FORK_UPPER_Y+6} textAnchor="start"
+          fontSize={20} fontFamily="IBM Plex Mono" fontWeight="700" fill={lc}>→ {upperSts[upperSts.length-1].code}</text>
+        <text x={armStart+(lowerSts.length-1)*GAP+20} y={FORK_LOWER_Y+6} textAnchor="start"
+          fontSize={20} fontFamily="IBM Plex Mono" fontWeight="700" fill={lc}>→ {lowerSts[lowerSts.length-1].code}</text>
       </svg>
     </div>
   );
@@ -1410,12 +1535,21 @@ function App() {
           <div className="map-content">
             {mapTab === 'linear' ? (
               <>
-                <LinearMap
-                  selected={selStation}
-                  onSelect={setSelStation}
-                  agg={agg}
-                  lineCfg={lineCfg}
-                />
+                {lineCfg.hasFork ? (
+                  <ForkMap
+                    selected={selStation}
+                    onSelect={setSelStation}
+                    agg={agg}
+                    lineCfg={lineCfg}
+                  />
+                ) : (
+                  <LinearMap
+                    selected={selStation}
+                    onSelect={setSelStation}
+                    agg={agg}
+                    lineCfg={lineCfg}
+                  />
+                )}
                 {selStation && (
                   <StationCard
                     stationName={selStation}
