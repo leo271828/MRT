@@ -13,7 +13,7 @@
    DESIGN TOKENS
 ════════════════════════════════════════════ */
 :root {
-  --line-br:#B57A24; --line-r:#E3002C; --line-g:#008659;
+  --line-br:#7A4520; --line-r:#E3002C; --line-g:#008659;
   --line-o:#F8B61C;  --line-bl:#0070BD; --line-y:#E5C100;
   --line-r-tint:#FBD9DF;
 
@@ -156,6 +156,7 @@ select{font-family:var(--font-sans);outline:none;}
 .line-chip--R.line-chip--on{color:var(--line-r);border-color:var(--line-r);background:color-mix(in oklab,var(--line-r) 8%,transparent);}
 .line-chip--G.line-chip--on{color:var(--line-g);border-color:var(--line-g);background:color-mix(in oklab,var(--line-g) 8%,transparent);}
 .line-chip--BL.line-chip--on{color:var(--line-bl);border-color:var(--line-bl);background:color-mix(in oklab,var(--line-bl) 8%,transparent);}
+.line-chip--BR.line-chip--on{color:var(--line-br);border-color:var(--line-br);background:color-mix(in oklab,var(--line-br) 8%,transparent);}
 
 /* ════════════════════════════════════════════
    MAP PANEL
@@ -417,7 +418,7 @@ const { useState, useEffect, useRef, useCallback, useMemo } = React;
 /* ═══════════════════════════════════════════
    CONSTANTS
 ═══════════════════════════════════════════ */
-const LINE_COLORS = { BR:'#B57A24',R:'#E3002C',G:'#008659',O:'#F8B61C',BL:'#0070BD',Y:'#E5C100' };
+const LINE_COLORS = { BR:'#7A4520',R:'#E3002C',G:'#008659',O:'#F8B61C',BL:'#0070BD',Y:'#E5C100' };
 
 const RED_LINE = [
   { code:'R28', tc:'淡水',         en:'Tamsui',               transfers:[] },
@@ -498,6 +499,33 @@ const BLUE_LINE = [
   { code:'BL01', tc:'頂埔',       en:'Dingpu',                    transfers:[] },
 ];
 
+const BR_LINE = [
+  { code:'BR01', tc:'動物園',     en:'Zoo',                          transfers:[] },
+  { code:'BR02', tc:'木柵',       en:'Muzha',                        transfers:[] },
+  { code:'BR03', tc:'萬芳社區',   en:'Wanfang Community',            transfers:[] },
+  { code:'BR04', tc:'萬芳醫院',   en:'Wanfang Hospital',             transfers:[] },
+  { code:'BR05', tc:'辛亥',       en:'Xinhai',                       transfers:[] },
+  { code:'BR06', tc:'麟光',       en:'Linguang',                     transfers:[] },
+  { code:'BR07', tc:'六張犁',     en:'Liuzhangli',                   transfers:[] },
+  { code:'BR08', tc:'科技大樓',   en:'Technology Building',          transfers:[] },
+  { code:'BR09', tc:'大安',       en:"Da'an",                        transfers:['R'] },
+  { code:'BR10', tc:'忠孝復興',   en:'Zhongxiao Fuxing',             transfers:['BL'] },
+  { code:'BR11', tc:'南京復興',   en:'Nanjing Fuxing',               transfers:['O'] },
+  { code:'BR12', tc:'中山國中',   en:'Zhongshan Junior High School', transfers:[] },
+  { code:'BR13', tc:'松山機場',   en:'Songshan Airport',             transfers:['O'] },
+  { code:'BR14', tc:'大直',       en:'Dazhi',                        transfers:[] },
+  { code:'BR15', tc:'劍南路',     en:'Jiannan Road',                 transfers:[] },
+  { code:'BR16', tc:'西湖',       en:'Xihu',                         transfers:[] },
+  { code:'BR17', tc:'港墘',       en:'Gangqian',                     transfers:[] },
+  { code:'BR18', tc:'文德',       en:'Wende',                        transfers:[] },
+  { code:'BR19', tc:'內湖',       en:'Neihu',                        transfers:[] },
+  { code:'BR20', tc:'大湖公園',   en:'Dahu Park',                    transfers:[] },
+  { code:'BR21', tc:'葫洲',       en:'Huzhou',                       transfers:[] },
+  { code:'BR22', tc:'東湖',       en:'Donghu',                       transfers:[] },
+  { code:'BR23', tc:'南港軟體園區',en:'Nangang Software Park',       transfers:[] },
+  { code:'BR24', tc:'南港展覽館', en:'Nangang Exhibition Center',    transfers:['BL'] },
+];
+
 const LINE_DEFS = {
   R: {
     id:'R', color:'#E3002C',
@@ -521,6 +549,14 @@ const LINE_DEFS = {
     dataFile:'data/mrt_blueline_all.json',
     fullLine: BLUE_LINE,
     mainLine: BLUE_LINE,
+    branchSt: undefined,
+  },
+  BR: {
+    id:'BR', color:'#7A4520',
+    name:'文湖線', nameEn:'Wenhu Line',
+    dataFile:'data/mrt_brline_all.json',
+    fullLine: BR_LINE,
+    mainLine: BR_LINE,
     branchSt: undefined,
   },
 };
@@ -1177,7 +1213,7 @@ function TopBar({ data, dateMode, setDateMode, selDate, setSelDate, selWd, setSe
 
       {/* Line selector + theme toggle */}
       <div className="topbar__legend">
-        {[{id:'BR',n:'文湖',clickable:false},{id:'R',n:'淡水信義',clickable:true},{id:'G',n:'松山新店',clickable:true},{id:'O',n:'中和新蘆',clickable:false},{id:'BL',n:'板南',clickable:true}].map(l => (
+        {[{id:'BR',n:'文湖',clickable:true},{id:'R',n:'淡水信義',clickable:true},{id:'G',n:'松山新店',clickable:true},{id:'O',n:'中和新蘆',clickable:false},{id:'BL',n:'板南',clickable:true}].map(l => (
           <div key={l.id}
             className={`line-chip line-chip--${l.id} ${activeLineId===l.id?'line-chip--on':''}`}
             title={l.clickable ? `切換至${l.n}線` : `${l.n}線（即將推出）`}
